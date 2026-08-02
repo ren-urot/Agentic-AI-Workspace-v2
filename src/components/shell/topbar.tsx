@@ -1,3 +1,5 @@
+"use client";
+
 import { Bell } from "lucide-react";
 import {
   Avatar,
@@ -16,6 +18,10 @@ import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { logout } from "@/app/login/actions";
 
 export function Topbar() {
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <header className="flex h-16 items-center justify-between border-b px-4 sm:px-6">
       <div className="text-sm font-medium text-muted-foreground">NexxaByte Enterprise Workspace</div>
@@ -25,23 +31,21 @@ export function Topbar() {
           <Bell className="h-4 w-4" />
         </Button>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="User menu">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>NB</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="icon" aria-label="User menu">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>NB</AvatarFallback>
+                </Avatar>
+              </Button>
+            }
+          />
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Admin User</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <form action={logout}>
-              <DropdownMenuItem asChild>
-                <button type="submit" className="w-full text-left">
-                  Sign out
-                </button>
-              </DropdownMenuItem>
-            </form>
+            <DropdownMenuItem onSelect={handleLogout}>
+              Sign out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
