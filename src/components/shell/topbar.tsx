@@ -43,7 +43,7 @@ export function Topbar() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Admin User</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={handleLogout}>
+            <DropdownMenuItem onClick={handleLogout}>
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
