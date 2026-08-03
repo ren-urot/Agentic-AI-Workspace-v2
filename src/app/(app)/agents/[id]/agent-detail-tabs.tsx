@@ -8,12 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import type { Agent } from "@/lib/mock-data/types";
 
 export function AgentDetailTabs({ agent }: { agent: Agent }) {
   const [prompt, setPrompt] = useState(agent.systemPrompt);
   const [saved, setSaved] = useState(false);
   const [tools, setTools] = useState(agent.toolPermissions);
+  const [shortTermMemory, setShortTermMemory] = useState(agent.shortTermMemory);
+  const [longTermMemory, setLongTermMemory] = useState(agent.longTermMemory);
+  const [clearSessionOpen, setClearSessionOpen] = useState(false);
+  const [resetMemoryOpen, setResetMemoryOpen] = useState(false);
 
   return (
     <Tabs defaultValue="prompt" className="w-full">
@@ -63,13 +68,17 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
             <CardTitle className="text-sm">Short-Term Memory</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {agent.shortTermMemory.map((m) => (
-              <div key={m.key} className="text-sm">
-                <span className="font-medium">{m.key}: </span>
-                <span className="text-muted-foreground">{m.value}</span>
-              </div>
-            ))}
-            <Button variant="outline" size="sm" className="mt-2">
+            {shortTermMemory.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No short-term memory entries.</p>
+            ) : (
+              shortTermMemory.map((m) => (
+                <div key={m.key} className="text-sm">
+                  <span className="font-medium">{m.key}: </span>
+                  <span className="text-muted-foreground">{m.value}</span>
+                </div>
+              ))
+            )}
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => setClearSessionOpen(true)}>
               Clear session
             </Button>
           </CardContent>
@@ -79,13 +88,17 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
             <CardTitle className="text-sm">Long-Term Memory</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {agent.longTermMemory.map((m) => (
-              <div key={m.key} className="text-sm">
-                <span className="font-medium">{m.key}: </span>
-                <span className="text-muted-foreground">{m.value}</span>
-              </div>
-            ))}
-            <Button variant="outline" size="sm" className="mt-2">
+            {longTermMemory.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No long-term memory entries.</p>
+            ) : (
+              longTermMemory.map((m) => (
+                <div key={m.key} className="text-sm">
+                  <span className="font-medium">{m.key}: </span>
+                  <span className="text-muted-foreground">{m.value}</span>
+                </div>
+              ))
+            )}
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => setResetMemoryOpen(true)}>
               Reset memory
             </Button>
           </CardContent>
@@ -100,15 +113,36 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
           <CardContent className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={agent.performance}>
-                <XAxis dataKey="label" fontSize={12} />
-                <YAxis fontSize={12} />
-                <Tooltip />
+                <XAxis dataKey="label" fontSize={12} stroke="var(--muted-foreground)" />
+                <YAxis fontSize={12} stroke="var(--muted-foreground)" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "var(--popover)",
+                    border: "1px solid var(--border)",
+                    color: "var(--popover-foreground)",
+                  }}
+                />
                 <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </TabsContent>
+
+      <ConfirmDialog
+        open={clearSessionOpen}
+        onOpenChange={setClearSessionOpen}
+        title="Clear session?"
+        description="This will clear the agent's short-term memory for this session."
+        onConfirm={() => setShortTermMemory([])}
+      />
+      <ConfirmDialog
+        open={resetMemoryOpen}
+        onOpenChange={setResetMemoryOpen}
+        title="Reset memory?"
+        description="This will reset the agent's long-term memory."
+        onConfirm={() => setLongTermMemory([])}
+      />
     </Tabs>
   );
 }
