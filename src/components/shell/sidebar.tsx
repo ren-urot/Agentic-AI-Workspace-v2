@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/components/shell/nav-items";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -73,7 +73,8 @@ export function MobileNav() {
           </Button>
         }
       />
-      <SheetContent side="left" className="w-64 p-0">
+      <SheetContent side="left" className="p-0 data-[side=left]:w-64">
+        <SheetTitle className="sr-only">Navigation menu</SheetTitle>
         <div className="flex h-16 items-center gap-2 border-b px-4">
           <Image src="/nexxabyte-logo.svg" alt="NexxaByte" width={28} height={28} className="h-auto w-auto" />
           <span className="text-sm font-semibold">NexxaByte</span>
