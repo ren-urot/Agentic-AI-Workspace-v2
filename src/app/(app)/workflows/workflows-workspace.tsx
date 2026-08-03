@@ -15,8 +15,8 @@ export function WorkflowsWorkspace({ initialWorkflows }: { initialWorkflows: Wor
         id: crypto.randomUUID(),
         name,
         status: "draft",
-        lastRun: new Date().toISOString(),
-        successRate: 100,
+        lastRun: "",
+        successRate: 0,
       },
       ...prev,
     ]);
@@ -32,7 +32,8 @@ export function WorkflowsWorkspace({ initialWorkflows }: { initialWorkflows: Wor
               <StatusBadge status={wf.status} />
             </CardHeader>
             <CardContent className="text-xs text-muted-foreground">
-              Success rate: {wf.successRate}% · Last run {new Date(wf.lastRun).toLocaleString("en-US", { timeZone: "UTC" })}
+              Success rate: {wf.successRate}% · Last run{" "}
+              {wf.lastRun ? new Date(wf.lastRun).toLocaleString("en-US", { timeZone: "UTC" }) : "Never run"}
             </CardContent>
           </Card>
         ))}

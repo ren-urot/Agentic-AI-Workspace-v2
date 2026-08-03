@@ -12,7 +12,10 @@ import type { KnowledgeDocument } from "@/lib/mock-data/types";
 const columnHelper = createColumnHelper<KnowledgeDocument>();
 
 const columns = [
-  columnHelper.accessor("name", { header: "Name" }),
+  columnHelper.accessor("name", {
+    header: "Name",
+    cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+  }),
   columnHelper.accessor("sourceType", { header: "Source" }),
   columnHelper.accessor("version", { header: "Version", cell: (info) => `v${info.getValue()}` }),
   columnHelper.accessor("status", {
@@ -21,7 +24,11 @@ const columns = [
   }),
   columnHelper.accessor("updatedAt", {
     header: "Updated",
-    cell: (info) => new Date(info.getValue()).toLocaleDateString("en-US", { timeZone: "UTC" }),
+    cell: (info) => (
+      <span className="text-muted-foreground">
+        {new Date(info.getValue()).toLocaleDateString("en-US", { timeZone: "UTC" })}
+      </span>
+    ),
   }),
 ];
 

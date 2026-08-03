@@ -46,7 +46,7 @@ export default async function DashboardPage() {
                   <div>
                     <p className="text-sm">{agent.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      Last active {new Date(agent.lastActive).toLocaleTimeString()}
+                      Last active {new Date(agent.lastActive).toLocaleTimeString("en-US", { timeZone: "UTC" })}
                     </p>
                   </div>
                 </div>

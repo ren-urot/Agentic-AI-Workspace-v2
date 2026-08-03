@@ -58,9 +58,12 @@ export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] })
                 <div>
                   <p className="font-medium">{webhook.url}</p>
                   <p className="text-xs text-muted-foreground">{webhook.event}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(webhook.createdAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
+                  </p>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => removeWebhook(webhook.id)} aria-label="Delete webhook">
-                  <Trash2 className="h-4 w-4 text-red-500" />
+                  <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                 </Button>
               </div>
             ))}
