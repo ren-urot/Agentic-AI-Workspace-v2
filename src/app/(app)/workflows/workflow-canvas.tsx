@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   Background,
@@ -14,6 +14,8 @@ import {
   type Node,
 } from "@xyflow/react";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const NODE_PALETTE: { type: string; label: string }[] = [
   { type: "trigger", label: "Trigger" },
@@ -43,10 +45,11 @@ const INITIAL_EDGES: Edge[] = [
 
 let nodeIdCounter = INITIAL_NODES.length + 1;
 
-export function WorkflowCanvas() {
+export function WorkflowCanvas({ onSave }: { onSave: (name: string) => void }) {
   const { resolvedTheme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES);
   const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES);
+  const [name, setName] = useState("");
 
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
@@ -62,34 +65,53 @@ export function WorkflowCanvas() {
   };
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row">
-      <Card className="w-full p-3 lg:w-48 lg:shrink-0">
-        <p className="mb-2 text-xs font-medium text-muted-foreground">Node palette</p>
-        <div className="space-y-2">
-          {NODE_PALETTE.map((item) => (
-            <button
-              key={item.type}
-              onClick={() => addNode(item.label)}
-              className="w-full rounded-md border px-3 py-2 text-left text-sm hover:bg-accent"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </Card>
-      <div className="h-[600px] lg:flex-1 rounded-md border">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          colorMode={resolvedTheme === "dark" ? "dark" : "light"}
-          fitView
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <Input
+          placeholder="Workflow name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="sm:max-w-xs"
+        />
+        <Button
+          disabled={!name.trim()}
+          onClick={() => {
+            onSave(name.trim());
+            setName("");
+          }}
         >
-          <Background />
-          <Controls />
-        </ReactFlow>
+          Save workflow
+        </Button>
+      </div>
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <Card className="w-full p-3 lg:w-48 lg:shrink-0">
+          <p className="mb-2 text-xs font-medium text-muted-foreground">Node palette</p>
+          <div className="space-y-2">
+            {NODE_PALETTE.map((item) => (
+              <button
+                key={item.type}
+                onClick={() => addNode(item.label)}
+                className="w-full rounded-md border px-3 py-2 text-left text-sm hover:bg-accent"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </Card>
+        <div className="h-[600px] lg:flex-1 rounded-md border">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            colorMode={resolvedTheme === "dark" ? "dark" : "light"}
+            fitView
+          >
+            <Background />
+            <Controls />
+          </ReactFlow>
+        </div>
       </div>
     </div>
   );
