@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { useTheme } from "next-themes";
 import {
   Background,
   Controls,
@@ -43,6 +44,7 @@ const INITIAL_EDGES: Edge[] = [
 let nodeIdCounter = INITIAL_NODES.length + 1;
 
 export function WorkflowCanvas() {
+  const { resolvedTheme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES);
   const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES);
 
@@ -60,8 +62,8 @@ export function WorkflowCanvas() {
   };
 
   return (
-    <div className="flex gap-4">
-      <Card className="w-48 shrink-0 p-3">
+    <div className="flex flex-col gap-4 lg:flex-row">
+      <Card className="w-full p-3 lg:w-48 lg:shrink-0">
         <p className="mb-2 text-xs font-medium text-muted-foreground">Node palette</p>
         <div className="space-y-2">
           {NODE_PALETTE.map((item) => (
@@ -75,13 +77,14 @@ export function WorkflowCanvas() {
           ))}
         </div>
       </Card>
-      <div className="h-[600px] flex-1 rounded-md border">
+      <div className="h-[600px] lg:flex-1 rounded-md border">
         <ReactFlow
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          colorMode={resolvedTheme === "dark" ? "dark" : "light"}
           fitView
         >
           <Background />
