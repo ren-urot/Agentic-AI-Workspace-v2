@@ -141,3 +141,13 @@ export interface Webhook {
   event: string;
   createdAt: string;
 }
+
+export interface Permission {
+  key: string;
+  label: string;
+}
+
+export interface RolePermissions {
+  role: UserRole;
+  permissions: Record<string, boolean>;
+}
