@@ -55,7 +55,7 @@ export function DocumentsTable({ documents }: { documents: KnowledgeDocument[] }
                   <StatusBadge status={doc.status} />
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {new Date(doc.updatedAt).toLocaleDateString()}
+                  {new Date(doc.updatedAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
                 </TableCell>
               </TableRow>
             ))}
