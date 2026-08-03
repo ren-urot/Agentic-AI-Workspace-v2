@@ -1,4 +1,4 @@
-import { getAuditLogs, getPermissions, getRolePermissions, getUsers } from "@/lib/mock-data/admin";
+import { getAuditLogs, getAgentCosts, getPermissions, getRolePermissions, getUsageSeries, getUsers } from "@/lib/mock-data/admin";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,13 +8,16 @@ import { Input } from "@/components/ui/input";
 import { UsersTable } from "./users-table";
 import { AuditLogTable } from "./audit-log-table";
 import { RolesPermissions } from "./roles-permissions";
+import { AiUsageMonitoring } from "./ai-usage";
 
 export default async function AdminPage() {
-  const [users, logs, permissions, rolePermissions] = await Promise.all([
+  const [users, logs, permissions, rolePermissions, usage, costs] = await Promise.all([
     getUsers(),
     getAuditLogs(),
     getPermissions(),
     getRolePermissions(),
+    getUsageSeries(),
+    getAgentCosts(),
   ]);
 
   return (
@@ -28,6 +31,7 @@ export default async function AdminPage() {
             <TabsTrigger value="roles">Roles & Permissions</TabsTrigger>
             <TabsTrigger value="audit">Audit Logs</TabsTrigger>
             <TabsTrigger value="security">Security Policies</TabsTrigger>
+            <TabsTrigger value="usage">AI Usage Monitoring</TabsTrigger>
             <TabsTrigger value="settings">System Settings</TabsTrigger>
           </TabsList>
         </div>
@@ -72,6 +76,10 @@ export default async function AdminPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="usage">
+          <AiUsageMonitoring usage={usage} costs={costs} />
         </TabsContent>
 
         <TabsContent value="settings">

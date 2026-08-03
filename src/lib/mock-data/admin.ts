@@ -1,5 +1,5 @@
 import { delay } from "@/lib/mock-data/delay";
-import type { AuditLogEntry, OrgUser, UserRole, UserStatus, Permission, RolePermissions } from "@/lib/mock-data/types";
+import type { AuditLogEntry, OrgUser, UserRole, UserStatus, Permission, RolePermissions, AgentCostEntry, ChartPoint } from "@/lib/mock-data/types";
 
 const ROLES: UserRole[] = ["Admin", "Manager", "Operator", "Viewer"];
 const USER_STATUSES: UserStatus[] = ["active", "active", "invited", "disabled"];
@@ -95,4 +95,30 @@ export async function getPermissions(): Promise<Permission[]> {
 
 export async function getRolePermissions(): Promise<RolePermissions[]> {
   return delay(ROLE_PERMISSIONS);
+}
+
+const USAGE_SERIES: ChartPoint[] = [
+  { label: "Mon", value: 420 },
+  { label: "Tue", value: 512 },
+  { label: "Wed", value: 489 },
+  { label: "Thu", value: 601 },
+  { label: "Fri", value: 578 },
+  { label: "Sat", value: 210 },
+  { label: "Sun", value: 190 },
+];
+
+const AGENT_COSTS: AgentCostEntry[] = [
+  { agentName: "Sales Agent", cost: 42.5 },
+  { agentName: "Customer Service Agent", cost: 38.2 },
+  { agentName: "HR Agent", cost: 12.1 },
+  { agentName: "Compliance Agent", cost: 9.8 },
+  { agentName: "Finance Agent", cost: 15.6 },
+];
+
+export async function getUsageSeries(): Promise<ChartPoint[]> {
+  return delay(USAGE_SERIES);
+}
+
+export async function getAgentCosts(): Promise<AgentCostEntry[]> {
+  return delay(AGENT_COSTS);
 }

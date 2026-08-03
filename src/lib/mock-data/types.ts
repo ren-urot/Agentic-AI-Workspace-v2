@@ -151,3 +151,8 @@ export interface RolePermissions {
   role: UserRole;
   permissions: Record<string, boolean>;
 }
+
+export interface AgentCostEntry {
+  agentName: string;
+  cost: number;
+}
