@@ -1,7 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import type {
+  AgentStatus,
+  DocumentStatus,
+  WorkflowStatus,
+  IntegrationStatus,
+  UserStatus,
+} from "@/lib/mock-data/types";
 
-const STATUS_STYLES: Record<string, string> = {
+export type Status = AgentStatus | DocumentStatus | WorkflowStatus | IntegrationStatus | UserStatus;
+
+const STATUS_STYLES: Record<Status, string> = {
   active: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
   connected: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
   approved: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
@@ -16,7 +25,7 @@ const STATUS_STYLES: Record<string, string> = {
   disabled: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",
 };
 
-export function StatusBadge({ status }: { status: string }) {
+export function StatusBadge({ status }: { status: Status }) {
   return (
     <Badge variant="outline" className={cn("capitalize", STATUS_STYLES[status] ?? "")}>
       {status}
