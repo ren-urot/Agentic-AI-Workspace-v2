@@ -53,7 +53,11 @@ export function RolesPermissions({
                     const checked = entry?.permissions[perm.key] ?? false;
                     return (
                       <td key={role} className="p-2 text-center">
-                        <Checkbox checked={checked} onCheckedChange={() => toggle(role, perm.key)} />
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={() => toggle(role, perm.key)}
+                          aria-label={`${perm.label} — ${role}`}
+                        />
                       </td>
                     );
                   })}

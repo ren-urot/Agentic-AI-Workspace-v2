@@ -67,6 +67,10 @@ export default async function AdminPage() {
                 <Switch id="sso" />
               </div>
               <div className="flex items-center justify-between">
+                <Label htmlFor="session-timeout">Automatically sign out after 30 minutes of inactivity</Label>
+                <Switch id="session-timeout" defaultChecked />
+              </div>
+              <div className="flex items-center justify-between">
                 <Label htmlFor="ip">Restrict access by IP allowlist</Label>
                 <Switch id="ip" />
               </div>
@@ -91,6 +95,10 @@ export default async function AdminPage() {
               <div className="space-y-2">
                 <Label htmlFor="timezone">Timezone</Label>
                 <Input id="timezone" defaultValue="America/New_York" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="default-locale">Default locale</Label>
+                <Input id="default-locale" defaultValue="en-US" />
               </div>
             </CardContent>
           </Card>
