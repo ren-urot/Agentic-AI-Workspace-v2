@@ -1,13 +1,29 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, FileQuestion } from "lucide-react";
+import { flexRender, getCoreRowModel, useReactTable, createColumnHelper } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FileQuestion } from "lucide-react";
 import type { KnowledgeDocument } from "@/lib/mock-data/types";
+
+const columnHelper = createColumnHelper<KnowledgeDocument>();
+
+const columns = [
+  columnHelper.accessor("name", { header: "Name" }),
+  columnHelper.accessor("sourceType", { header: "Source" }),
+  columnHelper.accessor("version", { header: "Version", cell: (info) => `v${info.getValue()}` }),
+  columnHelper.accessor("status", {
+    header: "Status",
+    cell: (info) => <StatusBadge status={info.getValue()} />,
+  }),
+  columnHelper.accessor("updatedAt", {
+    header: "Updated",
+    cell: (info) => new Date(info.getValue()).toLocaleDateString("en-US", { timeZone: "UTC" }),
+  }),
+];
 
 export function DocumentsTable({ documents }: { documents: KnowledgeDocument[] }) {
   const [query, setQuery] = useState("");
@@ -19,6 +35,8 @@ export function DocumentsTable({ documents }: { documents: KnowledgeDocument[] }
       (doc) => doc.name.toLowerCase().includes(q) || doc.keywords.some((k) => k.includes(q)),
     );
   }, [documents, query]);
+
+  const table = useReactTable({ data: filtered, columns, getCoreRowModel: getCoreRowModel() });
 
   return (
     <div className="space-y-4">
@@ -37,26 +55,22 @@ export function DocumentsTable({ documents }: { documents: KnowledgeDocument[] }
       ) : (
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Version</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Updated</TableHead>
-            </TableRow>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
           </TableHeader>
           <TableBody>
-            {filtered.map((doc) => (
-              <TableRow key={doc.id}>
-                <TableCell className="font-medium">{doc.name}</TableCell>
-                <TableCell>{doc.sourceType}</TableCell>
-                <TableCell>v{doc.version}</TableCell>
-                <TableCell>
-                  <StatusBadge status={doc.status} />
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {new Date(doc.updatedAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
-                </TableCell>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
               </TableRow>
             ))}
           </TableBody>

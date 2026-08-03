@@ -1,7 +1,7 @@
 import { getDocuments } from "@/lib/mock-data/knowledge";
 import { PageHeader } from "@/components/shared/page-header";
 import { UploadDialog } from "./upload-dialog";
-import { DocumentsTable } from "./documents-table";
+import { KnowledgeWorkspace } from "./knowledge-workspace";
 
 export default async function KnowledgeBasePage() {
   const documents = await getDocuments();
@@ -13,7 +13,7 @@ export default async function KnowledgeBasePage() {
         description="Manage the documents and data sources your agents are trained on."
         actions={<UploadDialog />}
       />
-      <DocumentsTable documents={documents} />
+      <KnowledgeWorkspace initialDocuments={documents} />
     </div>
   );
 }
