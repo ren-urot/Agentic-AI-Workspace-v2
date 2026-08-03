@@ -43,7 +43,12 @@ export default async function DashboardPage() {
               <div key={agent.id} className="flex items-center justify-between border-b pb-2 last:border-b-0 last:pb-0">
                 <div className="flex items-center gap-2">
                   <AgentIcon type={agent.type} className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{agent.name}</span>
+                  <div>
+                    <p className="text-sm">{agent.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Last active {new Date(agent.lastActive).toLocaleTimeString()}
+                    </p>
+                  </div>
                 </div>
                 <StatusBadge status={agent.status} />
               </div>

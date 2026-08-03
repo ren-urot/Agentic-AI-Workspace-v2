@@ -105,7 +105,27 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
         </Card>
       </TabsContent>
 
-      <TabsContent value="performance">
+      <TabsContent value="performance" className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Tasks Completed</CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-semibold">{agent.tasksCompleted}</CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Success Rate</CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-semibold">{agent.successRate}%</CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Avg Latency</CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-semibold">{agent.avgLatencyMs}ms</CardContent>
+          </Card>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Tasks completed (last 7 days)</CardTitle>
