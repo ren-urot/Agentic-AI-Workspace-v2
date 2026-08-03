@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { UsersTable } from "./users-table";
+import { UsersWorkspace } from "./users-workspace";
 import { AuditLogTable } from "./audit-log-table";
 import { RolesPermissions } from "./roles-permissions";
 import { AiUsageMonitoring } from "./ai-usage";
@@ -37,11 +37,7 @@ export default async function AdminPage() {
         </div>
 
         <TabsContent value="users">
-          <Card>
-            <CardContent className="pt-6">
-              <UsersTable users={users} />
-            </CardContent>
-          </Card>
+          <UsersWorkspace initialUsers={users} />
         </TabsContent>
 
         <TabsContent value="roles">
