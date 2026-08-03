@@ -16,12 +16,14 @@ export default async function AdminPage() {
       <PageHeader title="Administration" description="Manage users, security policies, and system settings." />
 
       <Tabs defaultValue="users">
-        <TabsList>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="audit">Audit Logs</TabsTrigger>
-          <TabsTrigger value="security">Security Policies</TabsTrigger>
-          <TabsTrigger value="settings">System Settings</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="audit">Audit Logs</TabsTrigger>
+            <TabsTrigger value="security">Security Policies</TabsTrigger>
+            <TabsTrigger value="settings">System Settings</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="users">
           <Card>

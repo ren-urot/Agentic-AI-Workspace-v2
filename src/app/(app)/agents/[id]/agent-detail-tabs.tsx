@@ -17,12 +17,14 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
 
   return (
     <Tabs defaultValue="prompt" className="w-full">
-      <TabsList>
-        <TabsTrigger value="prompt">Prompt Configuration</TabsTrigger>
-        <TabsTrigger value="tools">Tool Permissions</TabsTrigger>
-        <TabsTrigger value="memory">Memory Management</TabsTrigger>
-        <TabsTrigger value="performance">Performance Monitoring</TabsTrigger>
-      </TabsList>
+      <div className="overflow-x-auto">
+        <TabsList>
+          <TabsTrigger value="prompt">Prompt Configuration</TabsTrigger>
+          <TabsTrigger value="tools">Tool Permissions</TabsTrigger>
+          <TabsTrigger value="memory">Memory Management</TabsTrigger>
+          <TabsTrigger value="performance">Performance Monitoring</TabsTrigger>
+        </TabsList>
+      </div>
 
       <TabsContent value="prompt" className="space-y-4">
         <Textarea
