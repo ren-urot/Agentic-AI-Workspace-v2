@@ -22,7 +22,13 @@ export function Sidebar() {
       )}
     >
       <div className="flex h-16 items-center gap-2 border-b px-4">
-        <Image src="/nexxabyte-logo.svg" alt="NexxaByte" width={28} height={28} className="shrink-0" />
+        <Image
+          src="/nexxabyte-logo.svg"
+          alt="NexxaByte"
+          width={28}
+          height={28}
+          className="h-auto w-auto shrink-0"
+        />
         {!collapsed && <span className="truncate text-sm font-semibold">NexxaByte</span>}
       </div>
       <nav className="flex-1 space-y-1 p-2">
@@ -69,7 +75,7 @@ export function MobileNav() {
       />
       <SheetContent side="left" className="w-64 p-0">
         <div className="flex h-16 items-center gap-2 border-b px-4">
-          <Image src="/nexxabyte-logo.svg" alt="NexxaByte" width={28} height={28} />
+          <Image src="/nexxabyte-logo.svg" alt="NexxaByte" width={28} height={28} className="h-auto w-auto" />
           <span className="text-sm font-semibold">NexxaByte</span>
         </div>
         <nav className="space-y-1 p-2">

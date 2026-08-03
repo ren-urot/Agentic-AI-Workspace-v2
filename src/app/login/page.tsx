@@ -16,7 +16,14 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
-          <Image src="/nexxabyte-logo.svg" alt="NexxaByte" width={160} height={40} />
+          <Image
+            src="/nexxabyte-logo.svg"
+            alt="NexxaByte"
+            width={160}
+            height={40}
+            priority
+            className="h-auto w-auto"
+          />
           <CardTitle className="pt-2">Agentic AI Workspace</CardTitle>
           <CardDescription>Sign in to manage your organization&apos;s AI agents</CardDescription>
         </CardHeader>
