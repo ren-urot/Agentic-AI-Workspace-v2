@@ -13,9 +13,15 @@ export function RevenueChart({ data }: { data: ChartPoint[] }) {
       <CardContent className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
-            <XAxis dataKey="label" fontSize={12} />
-            <YAxis fontSize={12} />
-            <Tooltip />
+            <XAxis dataKey="label" fontSize={12} stroke="var(--muted-foreground)" />
+            <YAxis fontSize={12} stroke="var(--muted-foreground)" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "var(--popover)",
+                border: "1px solid var(--border)",
+                color: "var(--popover-foreground)",
+              }}
+            />
             <Area type="monotone" dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.15} strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
@@ -33,9 +39,15 @@ export function WorkflowHealthChart({ data }: { data: ChartPoint[] }) {
       <CardContent className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
-            <XAxis dataKey="label" fontSize={12} />
-            <YAxis fontSize={12} domain={[80, 100]} />
-            <Tooltip />
+            <XAxis dataKey="label" fontSize={12} stroke="var(--muted-foreground)" />
+            <YAxis fontSize={12} domain={[80, 100]} stroke="var(--muted-foreground)" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "var(--popover)",
+                border: "1px solid var(--border)",
+                color: "var(--popover-foreground)",
+              }}
+            />
             <Bar dataKey="value" fill="var(--primary)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
