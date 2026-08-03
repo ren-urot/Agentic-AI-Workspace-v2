@@ -134,3 +134,10 @@ export interface AuditLogEntry {
   resource: string;
   timestamp: string;
 }
+
+export interface Webhook {
+  id: string;
+  url: string;
+  event: string;
+  createdAt: string;
+}

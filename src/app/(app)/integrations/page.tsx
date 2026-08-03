@@ -1,12 +1,13 @@
-import { getIntegrations } from "@/lib/mock-data/integrations";
+import { getIntegrations, getWebhooks } from "@/lib/mock-data/integrations";
 import { PageHeader } from "@/components/shared/page-header";
 import { IntegrationCard } from "./integration-card";
+import { WebhookList } from "./webhook-list";
 import type { IntegrationCategory } from "@/lib/mock-data/types";
 
 const CATEGORY_ORDER: IntegrationCategory[] = ["CRM", "ERP", "Communication", "Identity", "Custom API"];
 
 export default async function IntegrationsPage() {
-  const integrations = await getIntegrations();
+  const [integrations, webhooks] = await Promise.all([getIntegrations(), getWebhooks()]);
 
   return (
     <div className="space-y-8">
@@ -25,6 +26,7 @@ export default async function IntegrationsPage() {
           </div>
         );
       })}
+      <WebhookList initialWebhooks={webhooks} />
     </div>
   );
 }

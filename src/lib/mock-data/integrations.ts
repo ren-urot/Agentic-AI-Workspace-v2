@@ -1,5 +1,5 @@
 import { delay } from "@/lib/mock-data/delay";
-import type { Integration } from "@/lib/mock-data/types";
+import type { Integration, Webhook } from "@/lib/mock-data/types";
 
 const INTEGRATIONS: Integration[] = [
   { id: "1", name: "Salesforce", category: "CRM", status: "connected", description: "Sync leads, opportunities, and accounts." },
@@ -16,4 +16,23 @@ const INTEGRATIONS: Integration[] = [
 
 export async function getIntegrations(): Promise<Integration[]> {
   return delay(INTEGRATIONS);
+}
+
+const WEBHOOKS: Webhook[] = [
+  {
+    id: "1",
+    url: "https://hooks.client.com/agent-events",
+    event: "agent.task.completed",
+    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+  },
+  {
+    id: "2",
+    url: "https://hooks.client.com/approvals",
+    event: "workflow.approval.requested",
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+  },
+];
+
+export async function getWebhooks(): Promise<Webhook[]> {
+  return delay(WEBHOOKS);
 }
