@@ -1,14 +1,15 @@
 import { getWorkflows } from "@/lib/mock-data/workflows";
+import { getAgents } from "@/lib/mock-data/agents";
 import { PageHeader } from "@/components/shared/page-header";
 import { WorkflowsWorkspace } from "./workflows-workspace";
 
 export default async function WorkflowsPage() {
-  const workflows = await getWorkflows();
+  const [workflows, agents] = await Promise.all([getWorkflows(), getAgents()]);
 
   return (
     <div className="space-y-6">
       <PageHeader title="Workflow Builder" description="Design and automate multi-step business processes." />
-      <WorkflowsWorkspace initialWorkflows={workflows} />
+      <WorkflowsWorkspace initialWorkflows={workflows} initialAgents={agents} />
     </div>
   );
 }

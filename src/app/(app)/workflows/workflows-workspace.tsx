@@ -1,29 +1,38 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { WorkflowCanvas } from "./workflow-canvas";
-import type { WorkflowSummary } from "@/lib/mock-data/types";
+import { CreateAutomationWizard } from "./create-automation-wizard";
+import type { Agent, WorkflowSummary } from "@/lib/mock-data/types";
 
-export function WorkflowsWorkspace({ initialWorkflows }: { initialWorkflows: WorkflowSummary[] }) {
+export function WorkflowsWorkspace({
+  initialWorkflows,
+  initialAgents,
+}: {
+  initialWorkflows: WorkflowSummary[];
+  initialAgents: Agent[];
+}) {
   const [workflows, setWorkflows] = useState(initialWorkflows);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
-  function handleSave(name: string) {
-    setWorkflows((prev) => [
-      {
-        id: crypto.randomUUID(),
-        name,
-        status: "draft",
-        lastRun: "",
-        successRate: 0,
-      },
-      ...prev,
-    ]);
+  function handleCreate(workflow: WorkflowSummary) {
+    setWorkflows((prev) => [workflow, ...prev]);
+    setIsWizardOpen(false);
   }
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-medium">Your automations</h2>
+        <Button onClick={() => setIsWizardOpen(true)}>
+          <Plus className="size-4" />
+          Create Automation
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {workflows.map((wf) => (
           <Card key={wf.id}>
@@ -41,10 +50,9 @@ export function WorkflowsWorkspace({ initialWorkflows }: { initialWorkflows: Wor
         ))}
       </div>
 
-      <div>
-        <h2 className="mb-3 text-sm font-medium">Canvas</h2>
-        <WorkflowCanvas onSave={handleSave} />
-      </div>
+      {isWizardOpen && (
+        <CreateAutomationWizard agents={initialAgents} onCreate={handleCreate} onClose={() => setIsWizardOpen(false)} />
+      )}
     </div>
   );
 }
