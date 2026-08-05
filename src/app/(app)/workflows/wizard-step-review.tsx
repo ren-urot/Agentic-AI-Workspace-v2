@@ -50,6 +50,7 @@ export function WizardStepReview({
           <button
             type="button"
             onClick={() => onActivateNowChange(false)}
+            aria-pressed={!activateNow}
             className={cn(
               "rounded-lg border px-4 py-2 text-sm",
               !activateNow ? "border-primary bg-chip-primary/40 font-medium" : "hover:bg-accent",
@@ -60,6 +61,7 @@ export function WizardStepReview({
           <button
             type="button"
             onClick={() => onActivateNowChange(true)}
+            aria-pressed={activateNow}
             className={cn(
               "rounded-lg border px-4 py-2 text-sm",
               activateNow ? "border-primary bg-chip-primary/40 font-medium" : "hover:bg-accent",

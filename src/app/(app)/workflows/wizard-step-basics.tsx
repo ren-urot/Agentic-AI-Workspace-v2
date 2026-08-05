@@ -27,8 +27,13 @@ export function WizardStepBasics({
           value={value.name}
           onChange={(e) => onChange({ ...value, name: e.target.value })}
           aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "automation-name-error" : undefined}
         />
-        {error && <p className="text-xs text-destructive">{error}</p>}
+        {error && (
+          <p id="automation-name-error" role="alert" className="text-xs text-destructive">
+            {error}
+          </p>
+        )}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="automation-description">Description</Label>

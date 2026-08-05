@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { addEdge, useEdgesState, useNodesState, type Connection, type Edge, type Node } from "@xyflow/react";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -55,6 +55,8 @@ export function CreateAutomationWizard({
 
   const [activateNow, setActivateNow] = useState(false);
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
     [setEdges],
@@ -70,24 +72,36 @@ export function CreateAutomationWizard({
     setCurrentStep(step);
   }
 
+  // Shared validation so a rail-jump back to an earlier step can't leave it in
+  // an invalid state that then slips past both `handleNext` and `handleCreate`.
+  function validateStep(step: WizardStepIndex): string | null {
+    if (step === 1) {
+      return basics.name.trim() ? null : "Automation name is required.";
+    }
+    if (step === 2) {
+      return selectedAgentIds.length > 0 ? null : "Choose at least one agent.";
+    }
+    return null;
+  }
+
   function handleNext() {
-    if (currentStep === 1) {
-      const trimmed = basics.name.trim();
-      if (!trimmed) {
-        setBasicsError("Automation name is required.");
+    const error = validateStep(currentStep);
+    if (error) {
+      if (currentStep === 1) {
+        setBasicsError(error);
         toast.error("Couldn't continue", "Give your automation a name first.");
-        return;
+      } else if (currentStep === 2) {
+        setAgentsError(error);
+        toast.error("Couldn't continue", "Assign at least one agent to this automation.");
       }
-      setBasicsError(null);
-      setBasics((prev) => ({ ...prev, name: trimmed }));
+      return;
     }
 
+    if (currentStep === 1) {
+      setBasicsError(null);
+      setBasics((prev) => ({ ...prev, name: prev.name.trim() }));
+    }
     if (currentStep === 2) {
-      if (selectedAgentIds.length === 0) {
-        setAgentsError("Choose at least one agent.");
-        toast.error("Couldn't continue", "Assign at least one agent to this automation.");
-        return;
-      }
       setAgentsError(null);
     }
 
@@ -101,24 +115,66 @@ export function CreateAutomationWizard({
   }
 
   function handleCreate() {
+    // The rail leaves steps 1-3 unlocked once reached, so a user can jump
+    // back, invalidate a field, then jump forward to step 4 and submit.
+    // Re-validate every earlier step here before actually creating anything.
+    for (const step of [1, 2] as WizardStepIndex[]) {
+      const error = validateStep(step);
+      if (error) {
+        if (step === 1) {
+          setBasicsError(error);
+          toast.error("Couldn't create automation", "Give your automation a name first.");
+        } else {
+          setAgentsError(error);
+          toast.error("Couldn't create automation", "Assign at least one agent to this automation.");
+        }
+        setCurrentStep(step);
+        return;
+      }
+    }
+
+    const trimmedName = basics.name.trim();
+    setBasics((prev) => ({ ...prev, name: trimmedName }));
+
     onCreate({
       id: crypto.randomUUID(),
-      name: basics.name,
+      name: trimmedName,
       status: activateNow ? "active" : "draft",
       lastRun: "",
       successRate: 0,
     });
     toast.success(
       activateNow ? "Automation activated" : "Automation saved as draft",
-      `"${basics.name}" has been created.`,
+      `"${trimmedName}" has been created.`,
     );
   }
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  useEffect(() => {
+    dialogRef.current?.focus();
+  }, []);
 
   const selectedAgents = agents.filter((a) => selectedAgentIds.includes(a.id));
   const activeStepMeta = WIZARD_STEPS[currentStep - 1];
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-background">
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Create Automation"
+      tabIndex={-1}
+      className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-background outline-none"
+    >
       <div className="flex items-center justify-between border-b bg-card px-6 py-4">
         <Breadcrumbs items={[{ label: "Workflows" }, { label: "Create Automation" }]} />
         <Button variant="ghost" size="icon" aria-label="Close wizard" onClick={onClose}>
@@ -149,7 +205,11 @@ export function CreateAutomationWizard({
                     if (ids.length > 0) setAgentsError(null);
                   }}
                 />
-                {agentsError && <p className="mt-2 text-xs text-destructive">{agentsError}</p>}
+                {agentsError && (
+                  <p id="automation-agents-error" role="alert" className="mt-2 text-xs text-destructive">
+                    {agentsError}
+                  </p>
+                )}
               </>
             )}
             {currentStep === 3 && (
