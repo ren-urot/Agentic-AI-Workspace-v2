@@ -15,7 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ThemeToggle } from "@/components/shell/theme-toggle";
+import { BrandMark } from "@/components/shared/brand-mark";
+import { SidebarCollapseToggle } from "@/components/shell/sidebar-collapse-toggle";
 import { MobileNav } from "@/components/shell/sidebar";
 import { logout } from "@/app/login/actions";
 
@@ -25,13 +26,13 @@ export function Topbar() {
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b px-4 sm:px-6">
-      <div className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium text-muted-foreground">
+    <header className="flex h-[79px] shrink-0 items-center justify-between border-b border-[#D9D9D9] bg-white px-4 sm:px-6">
+      <div className="flex items-center gap-3">
         <MobileNav />
-        <span className="truncate">NexxaByte Enterprise Workspace</span>
+        <BrandMark />
+        <SidebarCollapseToggle />
       </div>
       <div className="flex items-center gap-2">
-        <ThemeToggle />
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <Bell className="h-4 w-4" />
         </Button>
@@ -40,7 +41,7 @@ export function Topbar() {
             render={
               <Button variant="ghost" size="icon" aria-label="User menu">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>NB</AvatarFallback>
+                  <AvatarFallback className="bg-[#231F20] text-white">NB</AvatarFallback>
                 </Avatar>
               </Button>
             }
