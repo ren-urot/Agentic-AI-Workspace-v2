@@ -12,6 +12,15 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-chip-primary: var(--chip-primary);
+  --color-chip-primary-foreground: var(--chip-primary-foreground);
+  --color-chip-success: var(--chip-success);
+  --color-chip-success-foreground: var(--chip-success-foreground);
+  --color-chip-info: var(--chip-info);
+  --color-chip-info-foreground: var(--chip-info-foreground);
+  --color-chip-warning: var(--chip-warning);
+  --color-chip-warning-foreground: var(--chip-warning-foreground);
+  --color-sidebar-active: var(--sidebar-active);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
@@ -50,13 +59,13 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
+  --background: #eaeaea;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.62 0.19 35);
+  --primary: #f05223;
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -82,6 +91,15 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --chip-primary: #ffe3ca;
+  --chip-primary-foreground: #f05223;
+  --chip-success: #c7f2ce;
+  --chip-success-foreground: #00a424;
+  --chip-info: #cacdff;
+  --chip-info-foreground: #235df0;
+  --chip-warning: #ffebca;
+  --chip-warning-foreground: #ff8d28;
+  --sidebar-active: #f4f4f4;
 }
 
 .dark {
@@ -91,7 +109,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.19 35);
+  --primary: #f56a41;
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -116,6 +134,15 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --chip-primary: color-mix(in oklab, #f05223 18%, transparent);
+  --chip-primary-foreground: #ff8f65;
+  --chip-success: color-mix(in oklab, #00a424 18%, transparent);
+  --chip-success-foreground: #4ade80;
+  --chip-info: color-mix(in oklab, #235df0 18%, transparent);
+  --chip-info-foreground: #7c9cff;
+  --chip-warning: color-mix(in oklab, #ff8d28 18%, transparent);
+  --chip-warning-foreground: #ffb15e;
+  --sidebar-active: color-mix(in oklab, white 8%, transparent);
 }
 
 @layer base {
