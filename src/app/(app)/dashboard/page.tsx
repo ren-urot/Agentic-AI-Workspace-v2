@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Executive Dashboard" description="Real-time overview of your organization's AI operations." />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
