@@ -5,25 +5,60 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "@/lib/toast";
 import type { Webhook } from "@/lib/mock-data/types";
+
+const EVENT_PATTERN = /^[a-z]+(\.[a-z]+)+$/;
+
+function isValidWebhookUrl(value: string) {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] }) {
   const [webhooks, setWebhooks] = useState(initialWebhooks);
   const [url, setUrl] = useState("");
   const [event, setEvent] = useState("");
+  const [urlError, setUrlError] = useState<string | null>(null);
+  const [eventError, setEventError] = useState<string | null>(null);
 
   function addWebhook() {
-    if (!url.trim() || !event.trim()) return;
+    const trimmedUrl = url.trim();
+    const trimmedEvent = event.trim();
+
+    const nextUrlError = !trimmedUrl
+      ? "URL is required."
+      : !isValidWebhookUrl(trimmedUrl)
+        ? "Enter a valid http:// or https:// URL."
+        : null;
+    const nextEventError = !trimmedEvent
+      ? "Event is required."
+      : !EVENT_PATTERN.test(trimmedEvent)
+        ? "Use lowercase, dot-separated segments, e.g. agent.task.completed."
+        : null;
+
+    setUrlError(nextUrlError);
+    setEventError(nextEventError);
+    if (nextUrlError || nextEventError) return;
+
     setWebhooks((prev) => [
-      { id: crypto.randomUUID(), url: url.trim(), event: event.trim(), createdAt: new Date().toISOString() },
+      { id: crypto.randomUUID(), url: trimmedUrl, event: trimmedEvent, createdAt: new Date().toISOString() },
       ...prev,
     ]);
     setUrl("");
     setEvent("");
+    setUrlError(null);
+    setEventError(null);
+    toast.success("Webhook added", trimmedUrl);
   }
 
   function removeWebhook(id: string) {
     setWebhooks((prev) => prev.filter((w) => w.id !== id));
+    toast.success("Webhook removed");
   }
 
   return (
@@ -32,19 +67,26 @@ export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] })
         <CardTitle className="text-sm">Webhooks</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            placeholder="https://your-endpoint.com/webhook"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-          <Input
-            placeholder="Event (e.g. agent.task.completed)"
-            value={event}
-            onChange={(e) => setEvent(e.target.value)}
-            className="sm:max-w-xs"
-          />
-          <Button onClick={addWebhook} disabled={!url.trim() || !event.trim()}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+          <div className="flex-1 space-y-1">
+            <Input
+              placeholder="https://your-endpoint.com/webhook"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              aria-invalid={urlError ? true : undefined}
+            />
+            {urlError && <p className="text-xs text-destructive">{urlError}</p>}
+          </div>
+          <div className="space-y-1 sm:max-w-xs sm:flex-1">
+            <Input
+              placeholder="Event (e.g. agent.task.completed)"
+              value={event}
+              onChange={(e) => setEvent(e.target.value)}
+              aria-invalid={eventError ? true : undefined}
+            />
+            {eventError && <p className="text-xs text-destructive">{eventError}</p>}
+          </div>
+          <Button onClick={addWebhook}>
             <Plus className="mr-2 h-4 w-4" />
             Add
           </Button>

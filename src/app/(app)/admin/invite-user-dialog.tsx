@@ -14,28 +14,48 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/lib/toast";
 import type { OrgUser, UserRole } from "@/lib/mock-data/types";
 
 const ROLES: UserRole[] = ["Admin", "Manager", "Operator", "Viewer"];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function InviteUserDialog({ onInvite }: { onInvite: (user: OrgUser) => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<UserRole>("Viewer");
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   function handleInvite() {
-    if (!name.trim() || !email.trim()) return;
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    const nextNameError = !trimmedName ? "Name is required." : null;
+    const nextEmailError = !trimmedEmail
+      ? "Email is required."
+      : !EMAIL_PATTERN.test(trimmedEmail)
+        ? "Enter a valid email address."
+        : null;
+
+    setNameError(nextNameError);
+    setEmailError(nextEmailError);
+    if (nextNameError || nextEmailError) return;
+
     onInvite({
       id: crypto.randomUUID(),
-      name: name.trim(),
-      email: email.trim(),
+      name: trimmedName,
+      email: trimmedEmail,
       role,
       status: "invited",
     });
+    toast.success("Invitation sent", `${trimmedEmail} has been invited as ${role}.`);
     setName("");
     setEmail("");
     setRole("Viewer");
+    setNameError(null);
+    setEmailError(null);
     setOpen(false);
   }
 
@@ -54,11 +74,24 @@ export function InviteUserDialog({ onInvite }: { onInvite: (user: OrgUser) => vo
           <div className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="invite-name">Name</Label>
-              <Input id="invite-name" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                id="invite-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                aria-invalid={nameError ? true : undefined}
+              />
+              {nameError && <p className="text-xs text-destructive">{nameError}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="invite-email">Email</Label>
-              <Input id="invite-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input
+                id="invite-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={emailError ? true : undefined}
+              />
+              {emailError && <p className="text-xs text-destructive">{emailError}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="invite-role">Role</Label>

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { login } from "@/app/login/actions";
 import { PasswordInput } from "@/app/login/password-input";
+import { LoginErrorToast } from "@/app/login/login-error-toast";
 
 export default async function LoginPage({
   searchParams,
@@ -15,6 +16,7 @@ export default async function LoginPage({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+      <LoginErrorToast hasError={Boolean(error)} />
       <Card className="w-full max-w-[420px] px-[29px] py-[40px]">
         <CardHeader className="items-center text-center">
           <Image

@@ -16,6 +16,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 
 const NODE_PALETTE: { type: string; label: string }[] = [
   { type: "trigger", label: "Trigger" },
@@ -50,6 +51,7 @@ export function WorkflowCanvas({ onSave }: { onSave: (name: string) => void }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES);
   const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES);
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
@@ -66,19 +68,32 @@ export function WorkflowCanvas({ onSave }: { onSave: (name: string) => void }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <Input
-          placeholder="Workflow name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="h-[38px] bg-white sm:max-w-xs dark:bg-input/30"
-        />
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+        <div className="space-y-1 sm:max-w-xs sm:flex-1">
+          <Input
+            placeholder="Workflow name"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (nameError) setNameError(null);
+            }}
+            className="h-[38px] bg-white dark:bg-input/30"
+            aria-invalid={nameError ? true : undefined}
+          />
+          {nameError && <p className="text-xs text-destructive">{nameError}</p>}
+        </div>
         <Button
           className="h-auto py-2 px-3"
-          disabled={!name.trim()}
           onClick={() => {
-            onSave(name.trim());
+            const trimmed = name.trim();
+            if (!trimmed) {
+              setNameError("Workflow name is required.");
+              toast.error("Couldn't save workflow", "Give it a name first.");
+              return;
+            }
+            onSave(trimmed);
             setName("");
+            toast.success("Workflow saved", `"${trimmed}" has been created.`);
           }}
         >
           Save workflow

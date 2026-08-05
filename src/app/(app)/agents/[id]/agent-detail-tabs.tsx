@@ -10,11 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DragScrollX } from "@/components/shared/drag-scroll-x";
+import { toast } from "@/lib/toast";
 import type { Agent } from "@/lib/mock-data/types";
 
 export function AgentDetailTabs({ agent }: { agent: Agent }) {
   const [prompt, setPrompt] = useState(agent.systemPrompt);
   const [saved, setSaved] = useState(false);
+  const [promptError, setPromptError] = useState<string | null>(null);
   const [tools, setTools] = useState(agent.toolPermissions);
   const [shortTermMemory, setShortTermMemory] = useState(agent.shortTermMemory);
   const [longTermMemory, setLongTermMemory] = useState(agent.longTermMemory);
@@ -38,11 +40,22 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
           onChange={(e) => {
             setPrompt(e.target.value);
             setSaved(false);
+            if (promptError) setPromptError(null);
           }}
           rows={8}
+          aria-invalid={promptError ? true : undefined}
         />
+        {promptError && <p className="text-xs text-destructive">{promptError}</p>}
         <Button
-          onClick={() => setSaved(true)}
+          onClick={() => {
+            if (!prompt.trim()) {
+              setPromptError("System prompt can't be empty.");
+              toast.error("Couldn't save prompt", "System prompt can't be empty.");
+              return;
+            }
+            setSaved(true);
+            toast.success("Prompt saved", `${agent.name}'s system prompt has been updated.`);
+          }}
         >
           {saved ? "Saved" : "Save changes"}
         </Button>
@@ -57,9 +70,10 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
                 <Switch
                   id={`tool-${tool.tool}`}
                   checked={tool.enabled}
-                  onCheckedChange={(checked) =>
-                    setTools((prev) => prev.map((t, idx) => (idx === i ? { ...t, enabled: checked } : t)))
-                  }
+                  onCheckedChange={(checked) => {
+                    setTools((prev) => prev.map((t, idx) => (idx === i ? { ...t, enabled: checked } : t)));
+                    toast.success(checked ? `${tool.tool} access enabled` : `${tool.tool} access disabled`);
+                  }}
                 />
               </div>
             ))}
@@ -159,14 +173,20 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
         onOpenChange={setClearSessionOpen}
         title="Clear session?"
         description="This will clear the agent's short-term memory for this session."
-        onConfirm={() => setShortTermMemory([])}
+        onConfirm={() => {
+          setShortTermMemory([]);
+          toast.success("Session cleared", "Short-term memory has been cleared.");
+        }}
       />
       <ConfirmDialog
         open={resetMemoryOpen}
         onOpenChange={setResetMemoryOpen}
         title="Reset memory?"
         description="This will reset the agent's long-term memory."
-        onConfirm={() => setLongTermMemory([])}
+        onConfirm={() => {
+          setLongTermMemory([]);
+          toast.success("Memory reset", "Long-term memory has been reset.");
+        }}
       />
     </Tabs>
   );

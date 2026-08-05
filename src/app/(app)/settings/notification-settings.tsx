@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "@/lib/toast";
 
 const PREFERENCES = [
   { id: "critical-alerts", label: "Critical alerts", description: "Agent failures and connector errors." },
@@ -28,7 +29,10 @@ export function NotificationSettings() {
           <Switch
             id={pref.id}
             checked={enabled[pref.id]}
-            onCheckedChange={(checked) => setEnabled((prev) => ({ ...prev, [pref.id]: checked }))}
+            onCheckedChange={(checked) => {
+              setEnabled((prev) => ({ ...prev, [pref.id]: checked }));
+              toast.success(checked ? `${pref.label} enabled` : `${pref.label} disabled`);
+            }}
           />
         </div>
       ))}
