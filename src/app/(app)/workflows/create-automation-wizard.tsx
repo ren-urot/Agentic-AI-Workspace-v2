@@ -126,7 +126,7 @@ export function CreateAutomationWizard({
         </Button>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1560px] flex-1 flex-col gap-6 p-6 lg:flex-row">
+      <div className="mx-auto flex w-full max-w-[1560px] flex-1 flex-col gap-6 p-6 pb-36 lg:flex-row">
         <WizardRail currentStep={currentStep} maxReached={maxReached} onStepClick={goToStep} />
 
         <div className="flex flex-1 flex-col rounded-xl border bg-card p-6 shadow-sm">
