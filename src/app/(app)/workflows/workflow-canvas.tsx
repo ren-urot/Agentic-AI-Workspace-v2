@@ -71,9 +71,10 @@ export function WorkflowCanvas({ onSave }: { onSave: (name: string) => void }) {
           placeholder="Workflow name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="sm:max-w-xs"
+          className="h-[38px] bg-white sm:max-w-xs dark:bg-input/30"
         />
         <Button
+          className="h-auto py-2 px-3"
           disabled={!name.trim()}
           onClick={() => {
             onSave(name.trim());

@@ -18,7 +18,7 @@ export function UploadDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button><Upload className="mr-2 h-4 w-4" />Upload document</Button>} />
+      <DialogTrigger render={<Button className="h-auto p-4"><Upload className="mr-2 h-4 w-4" />Upload document</Button>} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload a knowledge source</DialogTitle>

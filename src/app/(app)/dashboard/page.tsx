@@ -42,7 +42,7 @@ export default async function DashboardPage() {
         <RevenueChart data={revenue} />
         <WorkflowHealthChart data={workflowHealth} />
         <Card>
-          <CardHeader>
+          <CardHeader className="border-b">
             <CardTitle className="text-sm">Alerts</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="border-b">
             <CardTitle className="text-sm">Agent Status</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -88,10 +88,10 @@ export default async function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="border-b">
             <CardTitle className="text-sm">AI Activity</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="mt-1.5 space-y-6">
             {activity.map((item) => (
               <div key={item.id} className="flex items-center gap-2 text-sm">
                 <span className="size-2 shrink-0 rounded-full bg-[#D70000]" aria-hidden="true" />

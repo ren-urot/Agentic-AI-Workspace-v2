@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "NexxaByte Agentic AI Solutions",
   description: "Enterprise Agentic AI operations platform",
-  icons: { icon: "/nexxabyte-logo.svg" },
+  icons: { icon: "/icon.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -15,6 +15,14 @@ const ACTIVITY: ActivityItem[] = [
   { id: "4", agentName: "Finance Agent", action: "Reconciled 214 invoices", timestamp: new Date(Date.now() - 75 * 60000).toISOString() },
   { id: "5", agentName: "Customer Service Agent", action: "Resolved 18 support tickets", timestamp: new Date(Date.now() - 120 * 60000).toISOString() },
   { id: "6", agentName: "Knowledge Assistant", action: "Indexed 5 new SharePoint documents", timestamp: new Date(Date.now() - 160 * 60000).toISOString() },
+  { id: "7", agentName: "HR Agent", action: "Scheduled onboarding for 2 new hires", timestamp: new Date(Date.now() - 195 * 60000).toISOString() },
+  { id: "8", agentName: "Operations Agent", action: "Routed 6 shipments to fulfillment partners", timestamp: new Date(Date.now() - 230 * 60000).toISOString() },
+  { id: "9", agentName: "Executive Assistant", action: "Prepared briefing for board meeting", timestamp: new Date(Date.now() - 265 * 60000).toISOString() },
+  { id: "10", agentName: "Recruitment Agent", action: "Screened 12 candidate applications", timestamp: new Date(Date.now() - 300 * 60000).toISOString() },
+  { id: "11", agentName: "Procurement Agent", action: "Submitted purchase order to vendor", timestamp: new Date(Date.now() - 335 * 60000).toISOString() },
+  { id: "12", agentName: "Sales Agent", action: "Logged call notes for 4 prospects", timestamp: new Date(Date.now() - 370 * 60000).toISOString() },
+  { id: "13", agentName: "Compliance Agent", action: "Completed quarterly access review", timestamp: new Date(Date.now() - 405 * 60000).toISOString() },
+  { id: "14", agentName: "Finance Agent", action: "Generated month-end expense report", timestamp: new Date(Date.now() - 440 * 60000).toISOString() },
 ];
 
 const ALERTS: AlertItem[] = [

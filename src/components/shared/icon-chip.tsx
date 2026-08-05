@@ -27,7 +27,7 @@ export function IconChip({
         className,
       )}
     >
-      <Icon className="size-5" />
+      <Icon className="size-6" />
     </div>
   );
 }

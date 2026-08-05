@@ -4,8 +4,8 @@ export function BrandMark({ className }: { className?: string }) {
   return (
     <svg
       viewBox="82 14 55 55"
-      width="32"
-      height="32"
+      width="38"
+      height="38"
       className={cn("shrink-0", className)}
       role="img"
       aria-label="NexxaByte"

@@ -41,7 +41,7 @@ export function InviteUserDialog({ onInvite }: { onInvite: (user: OrgUser) => vo
 
   return (
     <>
-      <Button size="sm" onClick={() => setOpen(true)}>
+      <Button size="sm" className="h-auto p-4 text-[14px]" onClick={() => setOpen(true)}>
         <UserPlus className="mr-2 h-4 w-4" />
         Invite user
       </Button>

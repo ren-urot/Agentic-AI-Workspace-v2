@@ -45,11 +45,7 @@ export default async function AdminPage() {
         </TabsContent>
 
         <TabsContent value="audit">
-          <Card>
-            <CardContent className="pt-6">
-              <AuditLogTable logs={logs} />
-            </CardContent>
-          </Card>
+          <AuditLogTable logs={logs} />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">

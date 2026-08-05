@@ -5,7 +5,7 @@ const SOURCES: DocumentSourceType[] = ["PDF", "Word", "Excel", "CSV", "Website",
 const STATUSES: DocumentStatus[] = ["approved", "approved", "pending", "approved", "rejected"];
 
 const DOCUMENTS: KnowledgeDocument[] = [
-  "Employee Handbook 2026", "Sales Playbook Q3", "ERP Integration Spec", "Compliance Policy — GDPR", "Vendor Onboarding Guide",
+  "Employee Handbook 2026", "Sales Playbook Q3", "ERP Integration Spec", "Compliance Policy GDPR", "Vendor Onboarding Guide",
   "Customer Support FAQ", "Product Catalog Export", "HR Benefits Summary", "Incident Response Runbook", "Procurement Approval Matrix",
 ].map((name, i) => ({
   id: String(i + 1),
