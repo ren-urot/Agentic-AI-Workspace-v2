@@ -151,9 +151,21 @@ export function CreateAutomationWizard({
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+      if (event.key !== "Escape") return;
+
+      // Nested Base UI popups (e.g. the Trigger Type select on step 1) register
+      // their own document-level Escape/dismiss listener only once they're open,
+      // which means it's added *after* this one and therefore runs *after* it too
+      // (same-phase listeners on the same target fire in registration order). If
+      // we acted on this keydown synchronously, we'd close the whole wizard before
+      // the popup ever got a chance to just close itself. Defer to the next tick
+      // so that, by the time we check `defaultPrevented`, Base UI's own dismiss
+      // handling (which calls `event.preventDefault()` when it closes on Escape)
+      // has already run and we can back off.
+      window.setTimeout(() => {
+        if (event.defaultPrevented) return;
         onClose();
-      }
+      }, 0);
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
