@@ -1,4 +1,3 @@
-// src/app/(app)/dashboard/page.tsx
 import { AlertTriangle, Bot, CheckCircle2, PiggyBank, Zap } from "lucide-react";
 import { getAgents } from "@/lib/mock-data/agents";
 import { getActivityFeed, getAlerts, getKpis, getRevenueSeries, getWorkflowHealthSeries } from "@/lib/mock-data/dashboard";
@@ -29,7 +28,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-[1200px] space-y-6">
       <PageHeader title="Executive Dashboard" description="Real-time overview of your organization's AI operations." />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

@@ -42,7 +42,6 @@ export function StatCard({
         <div className={cn("flex items-center gap-1 text-xs", trendColor)}>
           <TrendIcon className="h-3 w-3" />
           <span>{Math.abs(metric.delta)}%</span>
-          <span className="font-normal text-muted-foreground">vs last 7 days</span>
         </div>
       </CardContent>
     </Card>
