@@ -1,5 +1,6 @@
 import { getAuditLogs, getAgentCosts, getPermissions, getRolePermissions, getUsageSeries, getUsers } from "@/lib/mock-data/admin";
 import { PageHeader } from "@/components/shared/page-header";
+import { DragScrollX } from "@/components/shared/drag-scroll-x";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
@@ -25,7 +26,7 @@ export default async function AdminPage() {
       <PageHeader title="Administration" description="Manage users, security policies, and system settings." />
 
       <Tabs defaultValue="users">
-        <div className="overflow-x-auto">
+        <DragScrollX>
           <TabsList>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="roles">Roles & Permissions</TabsTrigger>
@@ -34,7 +35,7 @@ export default async function AdminPage() {
             <TabsTrigger value="usage">AI Usage Monitoring</TabsTrigger>
             <TabsTrigger value="settings">System Settings</TabsTrigger>
           </TabsList>
-        </div>
+        </DragScrollX>
 
         <TabsContent value="users">
           <UsersWorkspace initialUsers={users} />

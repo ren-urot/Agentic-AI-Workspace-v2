@@ -32,7 +32,7 @@ export function RolesPermissions({
         <CardTitle className="text-sm">Role Permission Matrix</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">

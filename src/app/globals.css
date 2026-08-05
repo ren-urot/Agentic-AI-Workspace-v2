@@ -154,5 +154,9 @@
   }
   html {
     @apply font-sans;
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
   }
 }

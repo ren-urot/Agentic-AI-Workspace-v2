@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DragScrollX } from "@/components/shared/drag-scroll-x";
 import type { Agent } from "@/lib/mock-data/types";
 
 export function AgentDetailTabs({ agent }: { agent: Agent }) {
@@ -22,14 +23,14 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
 
   return (
     <Tabs defaultValue="prompt" className="w-full">
-      <div className="overflow-x-auto">
+      <DragScrollX>
         <TabsList>
           <TabsTrigger value="prompt">Prompt Configuration</TabsTrigger>
           <TabsTrigger value="tools">Tool Permissions</TabsTrigger>
           <TabsTrigger value="memory">Memory Management</TabsTrigger>
           <TabsTrigger value="performance">Performance Monitoring</TabsTrigger>
         </TabsList>
-      </div>
+      </DragScrollX>
 
       <TabsContent value="prompt" className="space-y-4">
         <Textarea

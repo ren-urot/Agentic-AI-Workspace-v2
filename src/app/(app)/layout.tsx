@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Topbar notifications={notifications} />
         <div className="flex flex-1 gap-6 p-6">
           <Sidebar />
-          <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+          <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>
     </SidebarCollapseProvider>
