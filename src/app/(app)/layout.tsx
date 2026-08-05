@@ -1,14 +1,19 @@
 import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
+import { SidebarCollapseProvider } from "@/components/shell/sidebar-context";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
+    <SidebarCollapseProvider>
+      <div className="flex min-h-screen flex-col">
         <Topbar />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <div className="flex flex-1 gap-6 p-6">
+          <Sidebar />
+          <main className="min-w-0 flex-1 overflow-y-auto">
+            <div className="mx-auto w-full max-w-[1200px]">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarCollapseProvider>
   );
 }
