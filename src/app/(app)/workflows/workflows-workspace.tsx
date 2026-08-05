@@ -27,9 +27,11 @@ export function WorkflowsWorkspace({ initialWorkflows }: { initialWorkflows: Wor
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {workflows.map((wf) => (
           <Card key={wf.id}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm">{wf.name}</CardTitle>
-              <StatusBadge status={wf.status} />
+            <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
+              <CardTitle className="line-clamp-2 min-h-10 max-w-[130px] text-sm">{wf.name}</CardTitle>
+              <div className="shrink-0">
+                <StatusBadge status={wf.status} />
+              </div>
             </CardHeader>
             <CardContent className="text-xs text-muted-foreground">
               Success rate: {wf.successRate}% · Last run{" "}

@@ -48,25 +48,29 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
         </Button>
       </TabsContent>
 
-      <TabsContent value="tools" className="space-y-4">
-        {tools.map((tool, i) => (
-          <div key={tool.tool} className="flex items-center justify-between rounded-md border p-3">
-            <Label htmlFor={`tool-${tool.tool}`}>{tool.tool}</Label>
-            <Switch
-              id={`tool-${tool.tool}`}
-              checked={tool.enabled}
-              onCheckedChange={(checked) =>
-                setTools((prev) => prev.map((t, idx) => (idx === i ? { ...t, enabled: checked } : t)))
-              }
-            />
-          </div>
-        ))}
+      <TabsContent value="tools">
+        <Card>
+          <CardContent className="space-y-2">
+            {tools.map((tool, i) => (
+              <div key={tool.tool} className="flex items-center justify-between rounded-md border p-3">
+                <Label htmlFor={`tool-${tool.tool}`}>{tool.tool}</Label>
+                <Switch
+                  id={`tool-${tool.tool}`}
+                  checked={tool.enabled}
+                  onCheckedChange={(checked) =>
+                    setTools((prev) => prev.map((t, idx) => (idx === i ? { ...t, enabled: checked } : t)))
+                  }
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </TabsContent>
 
       <TabsContent value="memory" className="grid gap-4 sm:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Short-Term Memory</CardTitle>
+          <CardHeader className="border-b">
+            <CardTitle className="text-sm text-primary">Short-Term Memory</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {shortTermMemory.length === 0 ? (
@@ -85,8 +89,8 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Long-Term Memory</CardTitle>
+          <CardHeader className="border-b">
+            <CardTitle className="text-sm text-primary">Long-Term Memory</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {longTermMemory.length === 0 ? (
