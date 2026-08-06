@@ -197,7 +197,7 @@ export function CreateAutomationWizard({
       <div className="mx-auto flex w-full min-h-0 max-w-[1560px] flex-1 flex-col gap-6 p-6 pb-36 lg:flex-row">
         <WizardRail currentStep={currentStep} maxReached={maxReached} onStepClick={goToStep} />
 
-        <div className="flex min-h-0 flex-1 flex-col rounded-xl border bg-card p-6 shadow-sm">
+        <div className="flex flex-col rounded-xl border bg-card p-6 shadow-sm lg:min-h-0 lg:flex-1">
           <div className="mb-6">
             <p className="text-xs font-medium text-muted-foreground">
               Step {currentStep} of {WIZARD_STEPS.length}
@@ -205,7 +205,7 @@ export function CreateAutomationWizard({
             <h2 className="text-lg font-semibold">{activeStepMeta.title}</h2>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
             {currentStep === 1 && <WizardStepBasics value={basics} onChange={setBasics} error={basicsError} />}
             {currentStep === 2 && (
               <>
