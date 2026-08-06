@@ -4,10 +4,19 @@ import { useState } from "react";
 import { Plus, Workflow } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CreateAutomationWizard } from "./create-automation-wizard";
-import type { Agent, WorkflowSummary } from "@/lib/mock-data/types";
+import { toast } from "@/lib/toast";
+import type { Agent, WorkflowStatus, WorkflowSummary } from "@/lib/mock-data/types";
+
+const STATUS_OPTIONS: WorkflowStatus[] = ["active", "paused", "draft"];
 
 export function WorkflowsWorkspace({
   initialWorkflows,
@@ -22,6 +31,14 @@ export function WorkflowsWorkspace({
   function handleCreate(workflow: WorkflowSummary) {
     setWorkflows((prev) => [workflow, ...prev]);
     setIsWizardOpen(false);
+  }
+
+  function handleStatusChange(id: string, status: WorkflowStatus) {
+    setWorkflows((prev) => prev.map((wf) => (wf.id === id ? { ...wf, status } : wf)));
+    const workflow = workflows.find((wf) => wf.id === id);
+    if (workflow) {
+      toast.success("Status updated", `"${workflow.name}" is now ${status}.`);
+    }
   }
 
   return (
@@ -46,8 +63,32 @@ export function WorkflowsWorkspace({
             <Card key={wf.id}>
               <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
                 <CardTitle className="line-clamp-2 min-h-10 max-w-[130px] text-sm">{wf.name}</CardTitle>
-                <div className="shrink-0">
-                  <StatusBadge status={wf.status} />
+                <div className="flex shrink-0 items-center gap-1">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <button
+                          type="button"
+                          aria-label={`Change status for ${wf.name}`}
+                          className="rounded-full p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+                        >
+                          <StatusBadge status={wf.status} />
+                        </button>
+                      }
+                    />
+                    <DropdownMenuContent align="end">
+                      {STATUS_OPTIONS.map((status) => (
+                        <DropdownMenuItem
+                          key={status}
+                          disabled={status === wf.status}
+                          onClick={() => handleStatusChange(wf.id, status)}
+                          className="capitalize"
+                        >
+                          {status}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground">

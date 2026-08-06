@@ -26,7 +26,15 @@ function isValidEndpointUrl(value: string) {
   }
 }
 
-export function IntegrationCard({ integration }: { integration: Integration }) {
+export function IntegrationCard({
+  integration,
+  onConnect,
+  onDisconnect,
+}: {
+  integration: Integration;
+  onConnect: (id: string) => void;
+  onDisconnect: (id: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [endpoint, setEndpoint] = useState("");
@@ -58,9 +66,15 @@ export function IntegrationCard({ integration }: { integration: Integration }) {
       return;
     }
 
+    onConnect(integration.id);
     toast.success(`${integration.name} connected`, trimmedEndpoint);
     setOpen(false);
     reset();
+  }
+
+  function handleDisconnect() {
+    onDisconnect(integration.id);
+    toast.success(`${integration.name} disconnected`);
   }
 
   return (
@@ -72,9 +86,16 @@ export function IntegrationCard({ integration }: { integration: Integration }) {
         </CardHeader>
         <CardContent>
           <p className="text-xs text-muted-foreground">{integration.description}</p>
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpen(true)}>
-            Configure
-          </Button>
+          <div className="mt-3 flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+              Configure
+            </Button>
+            {integration.status === "connected" && (
+              <Button variant="ghost" size="sm" onClick={handleDisconnect}>
+                Disconnect
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
