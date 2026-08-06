@@ -21,7 +21,7 @@ export function WizardRail({
   onStepClick: (step: WizardStepIndex) => void;
 }) {
   return (
-    <div className="w-full shrink-0 rounded-xl border bg-card p-2 shadow-sm lg:w-[250px]">
+    <div className="w-full shrink-0 rounded-xl border bg-card p-2 shadow-sm lg:w-[250px] lg:min-h-[787px]">
       <nav className="flex flex-col gap-1" aria-label="Create automation steps">
         {WIZARD_STEPS.map((step) => {
           const completed = step.index < currentStep;
