@@ -856,18 +856,20 @@ async function main() {
     { name: "Nina Volkov", email: "nina.volkov@client.com", role: "Operator", status: "invited" },
     { name: "Diego Alvarez", email: "diego.alvarez@client.com", role: "Viewer", status: "disabled" },
   ];
-  // These are display-only demo rows (no real login needed for them), so we
-  // insert profiles directly rather than creating 7 more real auth users.
-  // They intentionally have no matching auth.users row.
+  // profiles.id is a foreign key to auth.users(id), so each demo user needs
+  // a real (if unused) auth account rather than a bare profiles insert.
+  // The trigger always sets status='invited' for signup_type='invited'; for
+  // users whose demo status is active/disabled, patch it after creation.
   for (const u of extraUsers) {
-    await supabase.from("profiles").insert({
-      id: crypto.randomUUID(),
-      org_id: orgId,
-      name: u.name,
+    const { data: extraUser } = await supabase.auth.admin.createUser({
       email: u.email,
-      role: u.role,
-      status: u.status,
+      password: crypto.randomUUID(),
+      email_confirm: true,
+      user_metadata: { signup_type: "invited", org_id: orgId, name: u.name, role: u.role },
     });
+    if (u.status !== "invited" && extraUser.user) {
+      await supabase.from("profiles").update({ status: u.status }).eq("id", extraUser.user.id);
+    }
   }
 
   console.log("Adding audit log history...");
@@ -909,25 +911,7 @@ Add to `package.json`'s `"scripts"` block:
 npm run seed:demo
 ```
 
-Expected: log lines ending in `Demo org seeded: <uuid>`, no thrown error.
-
-Note: `profiles.id` normally references a real `auth.users` row via foreign key. The 7 extra demo users use `crypto.randomUUID()` with no matching `auth.users` row — **remove the foreign key constraint's enforcement for demo purposes is not needed** because Postgres FKs to `auth.users` still allow inserting a `profiles` row pointing at a UUID that happens not to exist only if the constraint is deferred or absent; since Task 2's schema declares `references auth.users(id)`, this insert will fail. Fix before running: change those 7 rows' insert to use `supabase.auth.admin.createUser()` (like the primary demo user) instead of a bare `profiles` insert, accepting that this creates 7 additional real (unused) auth accounts. Update the script's "Adding more users" loop to:
-
-```ts
-  for (const u of extraUsers) {
-    const { data: extraUser } = await supabase.auth.admin.createUser({
-      email: u.email,
-      password: crypto.randomUUID(),
-      email_confirm: true,
-      user_metadata: { signup_type: "invited", org_id: orgId, name: u.name, role: u.role },
-    });
-    if (u.status !== "invited" && extraUser.user) {
-      await supabase.from("profiles").update({ status: u.status }).eq("id", extraUser.user.id);
-    }
-  }
-```
-
-Re-run `npm run seed:demo` after making this fix (delete the previously created demo user first via the dashboard's Authentication → Users tab if the first run partially succeeded, to avoid a duplicate-email error).
+Expected: log lines ending in `Demo org seeded: <uuid>`, no thrown error. If a prior partial run already created `demo@nexxabyte.com`, delete it first via the dashboard's Authentication → Users tab to avoid a duplicate-email error, then re-run.
 
 - [ ] **Step 4: Verify the seed via REST**
 
