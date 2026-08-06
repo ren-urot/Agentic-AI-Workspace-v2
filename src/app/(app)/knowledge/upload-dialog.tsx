@@ -13,8 +13,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/lib/toast";
+import { useAppStore } from "@/lib/store/app-store";
+import type { DocumentSourceType } from "@/lib/mock-data/types";
+
+const EXTENSION_SOURCE_TYPE: Record<string, DocumentSourceType> = {
+  pdf: "PDF",
+  doc: "Word",
+  docx: "Word",
+  xls: "Excel",
+  xlsx: "Excel",
+  csv: "CSV",
+};
+
+function inferSourceType(fileName: string): DocumentSourceType {
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
+  return EXTENSION_SOURCE_TYPE[ext] ?? "PDF";
+}
 
 export function UploadDialog() {
+  const { addDocument } = useAppStore();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +48,15 @@ export function UploadDialog() {
       toast.error("Couldn't add to queue", "Choose a file to upload first.");
       return;
     }
+    addDocument({
+      id: crypto.randomUUID(),
+      name: file.name,
+      sourceType: inferSourceType(file.name),
+      version: 1,
+      status: "pending",
+      updatedAt: new Date().toISOString(),
+      keywords: file.name.toLowerCase().split(/[.\s_-]+/).filter((w) => w.length > 3),
+    });
     toast.success("Added to approval queue", file.name);
     setOpen(false);
     reset();

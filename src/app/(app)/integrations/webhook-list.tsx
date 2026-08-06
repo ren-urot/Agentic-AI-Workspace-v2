@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/lib/toast";
-import type { Webhook } from "@/lib/mock-data/types";
+import { useAppStore } from "@/lib/store/app-store";
 
 const EVENT_PATTERN = /^[a-z]+(\.[a-z]+)+$/;
 
@@ -19,14 +19,14 @@ function isValidWebhookUrl(value: string) {
   }
 }
 
-export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] }) {
-  const [webhooks, setWebhooks] = useState(initialWebhooks);
+export function WebhookList() {
+  const { webhooks, addWebhook, removeWebhook } = useAppStore();
   const [url, setUrl] = useState("");
   const [event, setEvent] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
   const [eventError, setEventError] = useState<string | null>(null);
 
-  function addWebhook() {
+  function handleAdd() {
     const trimmedUrl = url.trim();
     const trimmedEvent = event.trim();
 
@@ -45,10 +45,7 @@ export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] })
     setEventError(nextEventError);
     if (nextUrlError || nextEventError) return;
 
-    setWebhooks((prev) => [
-      { id: crypto.randomUUID(), url: trimmedUrl, event: trimmedEvent, createdAt: new Date().toISOString() },
-      ...prev,
-    ]);
+    addWebhook({ id: crypto.randomUUID(), url: trimmedUrl, event: trimmedEvent, createdAt: new Date().toISOString() });
     setUrl("");
     setEvent("");
     setUrlError(null);
@@ -56,8 +53,8 @@ export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] })
     toast.success("Webhook added", trimmedUrl);
   }
 
-  function removeWebhook(id: string) {
-    setWebhooks((prev) => prev.filter((w) => w.id !== id));
+  function handleRemove(id: string) {
+    removeWebhook(id);
     toast.success("Webhook removed");
   }
 
@@ -86,7 +83,7 @@ export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] })
             />
             {eventError && <p className="text-xs text-destructive">{eventError}</p>}
           </div>
-          <Button onClick={addWebhook}>
+          <Button onClick={handleAdd}>
             <Plus className="mr-2 h-4 w-4" />
             Add
           </Button>
@@ -104,7 +101,7 @@ export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] })
                     {new Date(webhook.createdAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
                   </p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => removeWebhook(webhook.id)} aria-label="Delete webhook">
+                <Button variant="ghost" size="icon" onClick={() => handleRemove(webhook.id)} aria-label="Delete webhook">
                   <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                 </Button>
               </div>

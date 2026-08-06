@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { getAgentById } from "@/lib/mock-data/agents";
 import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { AgentDetailTabs } from "./agent-detail-tabs";
+import { AgentStatusBadge } from "./agent-status-badge";
 
 export default async function AgentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -20,7 +20,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
         <PageHeader
           title={agent.name}
           description={agent.description}
-          actions={<StatusBadge status={agent.status} />}
+          actions={<AgentStatusBadge agentId={agent.id} fallback={agent.status} />}
         />
         <AgentDetailTabs agent={agent} />
       </div>

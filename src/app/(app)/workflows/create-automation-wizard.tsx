@@ -142,6 +142,7 @@ export function CreateAutomationWizard({
       status: activateNow ? "active" : "draft",
       lastRun: "",
       successRate: 0,
+      agentIds: selectedAgentIds,
     });
     toast.success(
       activateNow ? "Automation activated" : "Automation saved as draft",

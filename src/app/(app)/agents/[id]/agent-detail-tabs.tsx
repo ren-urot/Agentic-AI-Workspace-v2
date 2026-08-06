@@ -11,15 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DragScrollX } from "@/components/shared/drag-scroll-x";
 import { toast } from "@/lib/toast";
+import { resolveAgent, useAppStore } from "@/lib/store/app-store";
 import type { Agent } from "@/lib/mock-data/types";
 
-export function AgentDetailTabs({ agent }: { agent: Agent }) {
+export function AgentDetailTabs({ agent: baseAgent }: { agent: Agent }) {
+  const { agentOverrides, setAgentOverride } = useAppStore();
+  const agent = resolveAgent(baseAgent, agentOverrides);
+
   const [prompt, setPrompt] = useState(agent.systemPrompt);
   const [saved, setSaved] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
-  const [tools, setTools] = useState(agent.toolPermissions);
-  const [shortTermMemory, setShortTermMemory] = useState(agent.shortTermMemory);
-  const [longTermMemory, setLongTermMemory] = useState(agent.longTermMemory);
   const [clearSessionOpen, setClearSessionOpen] = useState(false);
   const [resetMemoryOpen, setResetMemoryOpen] = useState(false);
 
@@ -53,6 +54,7 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
               toast.error("Couldn't save prompt", "System prompt can't be empty.");
               return;
             }
+            setAgentOverride(agent.id, { systemPrompt: prompt });
             setSaved(true);
             toast.success("Prompt saved", `${agent.name}'s system prompt has been updated.`);
           }}
@@ -64,14 +66,15 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
       <TabsContent value="tools">
         <Card>
           <CardContent className="space-y-2">
-            {tools.map((tool, i) => (
+            {agent.toolPermissions.map((tool, i) => (
               <div key={tool.tool} className="flex items-center justify-between rounded-md border p-3">
                 <Label htmlFor={`tool-${tool.tool}`}>{tool.tool}</Label>
                 <Switch
                   id={`tool-${tool.tool}`}
                   checked={tool.enabled}
                   onCheckedChange={(checked) => {
-                    setTools((prev) => prev.map((t, idx) => (idx === i ? { ...t, enabled: checked } : t)));
+                    const nextTools = agent.toolPermissions.map((t, idx) => (idx === i ? { ...t, enabled: checked } : t));
+                    setAgentOverride(agent.id, { toolPermissions: nextTools });
                     toast.success(checked ? `${tool.tool} access enabled` : `${tool.tool} access disabled`);
                   }}
                 />
@@ -87,10 +90,10 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
             <CardTitle className="text-sm text-primary">Short-Term Memory</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {shortTermMemory.length === 0 ? (
+            {agent.shortTermMemory.length === 0 ? (
               <p className="text-sm text-muted-foreground">No short-term memory entries.</p>
             ) : (
-              shortTermMemory.map((m) => (
+              agent.shortTermMemory.map((m) => (
                 <div key={m.key} className="text-sm">
                   <span className="font-medium">{m.key}: </span>
                   <span className="text-muted-foreground">{m.value}</span>
@@ -107,10 +110,10 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
             <CardTitle className="text-sm text-primary">Long-Term Memory</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {longTermMemory.length === 0 ? (
+            {agent.longTermMemory.length === 0 ? (
               <p className="text-sm text-muted-foreground">No long-term memory entries.</p>
             ) : (
-              longTermMemory.map((m) => (
+              agent.longTermMemory.map((m) => (
                 <div key={m.key} className="text-sm">
                   <span className="font-medium">{m.key}: </span>
                   <span className="text-muted-foreground">{m.value}</span>
@@ -174,7 +177,7 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
         title="Clear session?"
         description="This will clear the agent's short-term memory for this session."
         onConfirm={() => {
-          setShortTermMemory([]);
+          setAgentOverride(agent.id, { shortTermMemory: [] });
           toast.success("Session cleared", "Short-term memory has been cleared.");
         }}
       />
@@ -184,7 +187,7 @@ export function AgentDetailTabs({ agent }: { agent: Agent }) {
         title="Reset memory?"
         description="This will reset the agent's long-term memory."
         onConfirm={() => {
-          setLongTermMemory([]);
+          setAgentOverride(agent.id, { longTermMemory: [] });
           toast.success("Memory reset", "Long-term memory has been reset.");
         }}
       />

@@ -6,14 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
+import { useAppStore } from "@/lib/store/app-store";
 
 const LOCALE_PATTERN = /^[a-z]{2}-[A-Z]{2}$/;
 const TIMEZONE_PATTERN = /^[A-Za-z_]+\/[A-Za-z_]+$/;
 
 export function OrganizationSettings() {
-  const [orgName, setOrgName] = useState("Acme Corp");
-  const [timezone, setTimezone] = useState("America/New_York");
-  const [locale, setLocale] = useState("en-US");
+  const { orgSettings, setOrgSettings } = useAppStore();
+  const [orgName, setOrgName] = useState(orgSettings.orgName);
+  const [timezone, setTimezone] = useState(orgSettings.timezone);
+  const [locale, setLocale] = useState(orgSettings.locale);
   const [errors, setErrors] = useState<{ orgName?: string; timezone?: string; locale?: string }>({});
 
   function handleSave() {
@@ -28,6 +30,7 @@ export function OrganizationSettings() {
       return;
     }
 
+    setOrgSettings({ orgName: orgName.trim(), timezone: timezone.trim(), locale: locale.trim() });
     toast.success("Settings saved", "Organization settings have been updated.");
   }
 

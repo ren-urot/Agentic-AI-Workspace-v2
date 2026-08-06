@@ -103,6 +103,7 @@ export interface WorkflowSummary {
   status: WorkflowStatus;
   lastRun: string;
   successRate: number;
+  agentIds: string[];
 }
 
 export type IntegrationCategory = "CRM" | "ERP" | "Communication" | "Identity" | "Custom API";
