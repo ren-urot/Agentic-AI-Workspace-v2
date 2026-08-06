@@ -194,10 +194,10 @@ export function CreateAutomationWizard({
         </Button>
       </div>
 
-      <div className="mx-auto flex w-full min-h-0 max-w-[1560px] flex-1 flex-col gap-6 p-6 pb-36 lg:flex-row">
+      <div className="mx-auto flex w-full min-h-0 max-w-[1560px] flex-1 flex-col gap-6 p-6 pb-36 lg:flex-row lg:items-start">
         <WizardRail currentStep={currentStep} maxReached={maxReached} onStepClick={goToStep} />
 
-        <div className="flex min-h-[500px] flex-col rounded-xl border bg-card p-6 shadow-sm lg:flex-1">
+        <div className="flex flex-col rounded-xl border bg-card p-6 shadow-sm lg:flex-1">
           <div className="mb-6">
             <p className="text-xs font-medium text-muted-foreground">
               Step {currentStep} of {WIZARD_STEPS.length}
