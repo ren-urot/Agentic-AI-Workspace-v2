@@ -245,7 +245,7 @@ export function CreateAutomationWizard({
             )}
           </div>
 
-          <div className="mt-6 flex items-center justify-between border-t pt-4">
+          <div className="mt-[44px] flex items-center justify-between border-t pt-4">
             <div className="flex items-center gap-2">
               <Button variant="ghost" onClick={onClose}>
                 Cancel
