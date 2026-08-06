@@ -16,11 +16,16 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("id, org_id, name, email, role, status")
     .eq("id", user.id)
     .single();
+
+  if (error) {
+    if (error.code === "PGRST116") return null; // no matching row — legitimate "no profile"
+    throw new Error(`Failed to load current profile: ${error.message}`);
+  }
   if (!data) return null;
 
   return {
