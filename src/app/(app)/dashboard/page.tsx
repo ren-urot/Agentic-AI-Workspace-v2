@@ -8,6 +8,7 @@ import { AgentIcon } from "@/components/shared/agent-icon";
 import type { IconChipVariant } from "@/components/shared/icon-chip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RevenueChart, WorkflowHealthChart } from "./charts";
+import { WelcomeToast } from "./welcome-toast";
 import type { LucideIcon } from "lucide-react";
 
 const KPI_PRESENTATION: Record<string, { icon: LucideIcon; variant: IconChipVariant }> = {
@@ -17,8 +18,13 @@ const KPI_PRESENTATION: Record<string, { icon: LucideIcon; variant: IconChipVari
   "cost-saved": { icon: PiggyBank, variant: "warning" },
 };
 
-export default async function DashboardPage() {
-  const [kpis, activity, alerts, revenue, workflowHealth, agents] = await Promise.all([
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>;
+}) {
+  const [{ welcome }, kpis, activity, alerts, revenue, workflowHealth, agents] = await Promise.all([
+    searchParams,
     getKpis(),
     getActivityFeed(),
     getAlerts(),
@@ -29,6 +35,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <WelcomeToast show={welcome === "1"} />
       <PageHeader title="Executive Dashboard" description="Real-time overview of your organization's AI operations." />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

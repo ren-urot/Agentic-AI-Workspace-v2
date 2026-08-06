@@ -3,12 +3,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { login } from "@/app/login/actions";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { signup } from "@/app/signup/actions";
 import { PasswordInput } from "@/app/login/password-input";
-import { LoginErrorToast } from "@/app/login/login-error-toast";
+import { SignupErrorToast } from "@/app/signup/signup-error-toast";
 
-export default async function LoginPage({
+export default async function SignupPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
@@ -17,7 +17,7 @@ export default async function LoginPage({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
-      <LoginErrorToast hasError={Boolean(error)} />
+      <SignupErrorToast error={error} />
       <Card className="w-full max-w-[420px] px-[29px] py-[40px]">
         <CardHeader className="items-center text-center">
           <Image
@@ -28,14 +28,29 @@ export default async function LoginPage({
             priority
             className="mx-auto"
           />
-          <CardTitle className="pt-2">Agentic AI Workspace</CardTitle>
-          <CardDescription>Sign in to manage your organization&apos;s AI agents</CardDescription>
+          <CardTitle className="pt-2">Create your admin account</CardTitle>
+          <CardDescription>
+            You&apos;ll be the first Admin for your organization&apos;s workspace — invite your team once you&apos;re in.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={login} className="space-y-4">
+          <form action={signup} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="-ml-[9.5px]">
+                Full name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Jordan Lee"
+                required
+                className="h-[42px] w-[calc(100%+19px)] -mx-[9.5px] rounded-[9.6px]"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="-ml-[9.5px]">
-                Email
+                Work email
               </Label>
               <Input
                 id="email"
@@ -51,16 +66,22 @@ export default async function LoginPage({
                 Password
               </Label>
               <PasswordInput id="password" name="password" />
+              <p className="-ml-[9.5px] text-xs text-muted-foreground">At least 8 characters.</p>
             </div>
-            {error ? <p className="text-sm text-red-600 dark:text-red-400">Enter an email and password.</p> : null}
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="-ml-[9.5px]">
+                Confirm password
+              </Label>
+              <PasswordInput id="confirmPassword" name="confirmPassword" />
+            </div>
             <Button type="submit" className="h-[42px] w-[calc(100%+19px)] -mx-[9.5px] rounded-[9.6px]">
-              Sign in
+              Create account
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            New organization?{" "}
-            <Link href="/signup" className="text-primary hover:underline">
-              Create an account
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary hover:underline">
+              Sign in
             </Link>
           </p>
         </CardContent>
