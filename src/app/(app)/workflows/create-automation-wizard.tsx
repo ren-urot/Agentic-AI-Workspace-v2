@@ -257,7 +257,7 @@ export function CreateAutomationWizard({
               )}
             </div>
             {currentStep < WIZARD_STEPS.length ? (
-              <Button onClick={handleNext}>Next</Button>
+              <Button className="w-[100px]" onClick={handleNext}>Next</Button>
             ) : (
               <Button onClick={handleCreate}>Create Automation</Button>
             )}
