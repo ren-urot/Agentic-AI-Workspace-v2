@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type {
   Agent,
+  AuditLogEntry,
   ChartPoint,
   Integration,
   IntegrationStatus,
@@ -56,6 +57,7 @@ interface StoredState {
   rolePermissions: RolePermissions[];
   securityPolicies: SecurityPolicies;
   orgSettings: OrgSettings;
+  auditLogs: AuditLogEntry[];
 }
 
 export interface AppStoreSeed {
@@ -66,6 +68,7 @@ export interface AppStoreSeed {
   users: OrgUser[];
   documents: KnowledgeDocument[];
   rolePermissions: RolePermissions[];
+  auditLogs: AuditLogEntry[];
 }
 
 const DEFAULT_SECURITY_POLICIES: SecurityPolicies = { mfa: true, sso: false, "session-timeout": true, ip: false };
@@ -88,6 +91,11 @@ function freshDeployOverride(): AgentOverride {
   };
 }
 
+function withAuditLog(prev: StoredState, actor: string, action: string, resource: string): AuditLogEntry[] {
+  const entry: AuditLogEntry = { id: crypto.randomUUID(), actor, action, resource, timestamp: new Date().toISOString() };
+  return [entry, ...prev.auditLogs];
+}
+
 function buildInitialState(seed: AppStoreSeed): StoredState {
   return {
     workflows: seed.workflows,
@@ -100,6 +108,7 @@ function buildInitialState(seed: AppStoreSeed): StoredState {
     rolePermissions: seed.rolePermissions,
     securityPolicies: DEFAULT_SECURITY_POLICIES,
     orgSettings: DEFAULT_ORG_SETTINGS,
+    auditLogs: seed.auditLogs,
   };
 }
 
@@ -115,6 +124,7 @@ interface AppStoreValue {
   rolePermissions: RolePermissions[];
   securityPolicies: SecurityPolicies;
   orgSettings: OrgSettings;
+  auditLogs: AuditLogEntry[];
 
   addWorkflow: (workflow: WorkflowSummary) => void;
   setWorkflowStatus: (id: string, status: WorkflowStatus) => void;
@@ -147,11 +157,13 @@ export function AppStoreProvider({
   seed,
   agents,
   sessionKey,
+  currentUserName,
   children,
 }: {
   seed: AppStoreSeed;
   agents: Agent[];
   sessionKey: string;
+  currentUserName: string;
   children: ReactNode;
 }) {
   const [state, setState] = useState<StoredState>(() => buildInitialState(seed));
@@ -166,8 +178,14 @@ export function AppStoreProvider({
       const raw = window.localStorage.getItem(key);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<StoredState>;
+        // A saved snapshot means this is a *known* account, not a first-ever
+        // load — so any field missing from it (e.g. one added to the store
+        // after this snapshot was written) must default to empty, never to
+        // the server seed's "returning login" canned data. The cookie-based
+        // isNewOrg() signal that produced that seed only reflects the most
+        // recent signup/login action, not this account's true history.
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setState((prev) => ({ ...prev, ...parsed }));
+        setState((prev) => ({ ...prev, ...parsed, auditLogs: parsed.auditLogs ?? [] }));
       }
     } catch {
       // ignore corrupt storage
@@ -205,16 +223,26 @@ export function AppStoreProvider({
           agentOverrides[id] = { ...agentOverrides[id], ...freshDeployOverride() };
         }
       }
-      return { ...prev, workflows: [workflow, ...prev.workflows], deployedAgentIds, agentOverrides };
+      return {
+        ...prev,
+        workflows: [workflow, ...prev.workflows],
+        deployedAgentIds,
+        agentOverrides,
+        auditLogs: withAuditLog(prev, currentUserName, "Created workflow", workflow.name),
+      };
     });
-  }, []);
+  }, [currentUserName]);
 
   const setWorkflowStatus = useCallback((id: string, status: WorkflowStatus) => {
-    setState((prev) => ({
-      ...prev,
-      workflows: prev.workflows.map((wf) => (wf.id === id ? { ...wf, status } : wf)),
-    }));
-  }, []);
+    setState((prev) => {
+      const workflow = prev.workflows.find((wf) => wf.id === id);
+      return {
+        ...prev,
+        workflows: prev.workflows.map((wf) => (wf.id === id ? { ...wf, status } : wf)),
+        auditLogs: workflow ? withAuditLog(prev, currentUserName, `Changed workflow status to ${status}`, workflow.name) : prev.auditLogs,
+      };
+    });
+  }, [currentUserName]);
 
   const setAgentOverride = useCallback((id: string, override: Partial<AgentOverride>) => {
     setState((prev) => ({
@@ -224,39 +252,86 @@ export function AppStoreProvider({
   }, []);
 
   const setIntegrationStatus = useCallback((id: string, status: IntegrationStatus) => {
-    setState((prev) => ({
-      ...prev,
-      integrations: prev.integrations.map((i) => (i.id === id ? { ...i, status } : i)),
-    }));
-  }, []);
+    setState((prev) => {
+      const integration = prev.integrations.find((i) => i.id === id);
+      return {
+        ...prev,
+        integrations: prev.integrations.map((i) => (i.id === id ? { ...i, status } : i)),
+        auditLogs: integration
+          ? withAuditLog(prev, currentUserName, status === "connected" ? "Connected integration" : "Disconnected integration", integration.name)
+          : prev.auditLogs,
+      };
+    });
+  }, [currentUserName]);
 
   const addWebhook = useCallback((webhook: Webhook) => {
-    setState((prev) => ({ ...prev, webhooks: [webhook, ...prev.webhooks] }));
-  }, []);
+    setState((prev) => ({
+      ...prev,
+      webhooks: [webhook, ...prev.webhooks],
+      auditLogs: withAuditLog(prev, currentUserName, "Added webhook", webhook.url),
+    }));
+  }, [currentUserName]);
 
   const removeWebhook = useCallback((id: string) => {
-    setState((prev) => ({ ...prev, webhooks: prev.webhooks.filter((w) => w.id !== id) }));
-  }, []);
+    setState((prev) => {
+      const webhook = prev.webhooks.find((w) => w.id === id);
+      return {
+        ...prev,
+        webhooks: prev.webhooks.filter((w) => w.id !== id),
+        auditLogs: webhook ? withAuditLog(prev, currentUserName, "Removed webhook", webhook.url) : prev.auditLogs,
+      };
+    });
+  }, [currentUserName]);
 
   const addUser = useCallback((user: OrgUser) => {
-    setState((prev) => ({ ...prev, users: [user, ...prev.users] }));
-  }, []);
+    setState((prev) => ({
+      ...prev,
+      users: [user, ...prev.users],
+      auditLogs: withAuditLog(prev, currentUserName, "Invited user", user.email),
+    }));
+  }, [currentUserName]);
 
   const setUserRole = useCallback((id: string, role: UserRole) => {
-    setState((prev) => ({ ...prev, users: prev.users.map((u) => (u.id === id ? { ...u, role } : u)) }));
-  }, []);
+    setState((prev) => {
+      const user = prev.users.find((u) => u.id === id);
+      return {
+        ...prev,
+        users: prev.users.map((u) => (u.id === id ? { ...u, role } : u)),
+        auditLogs: user ? withAuditLog(prev, currentUserName, `Changed role to ${role}`, user.name) : prev.auditLogs,
+      };
+    });
+  }, [currentUserName]);
 
   const setUserStatus = useCallback((id: string, status: UserStatus) => {
-    setState((prev) => ({ ...prev, users: prev.users.map((u) => (u.id === id ? { ...u, status } : u)) }));
-  }, []);
+    setState((prev) => {
+      const user = prev.users.find((u) => u.id === id);
+      return {
+        ...prev,
+        users: prev.users.map((u) => (u.id === id ? { ...u, status } : u)),
+        auditLogs: user ? withAuditLog(prev, currentUserName, `Changed user status to ${status}`, user.name) : prev.auditLogs,
+      };
+    });
+  }, [currentUserName]);
 
   const addDocument = useCallback((doc: KnowledgeDocument) => {
-    setState((prev) => ({ ...prev, documents: [doc, ...prev.documents] }));
-  }, []);
+    setState((prev) => ({
+      ...prev,
+      documents: [doc, ...prev.documents],
+      auditLogs: withAuditLog(prev, currentUserName, "Uploaded document", doc.name),
+    }));
+  }, [currentUserName]);
 
   const setDocumentStatus = useCallback((id: string, status: DocumentStatus) => {
-    setState((prev) => ({ ...prev, documents: prev.documents.map((d) => (d.id === id ? { ...d, status } : d)) }));
-  }, []);
+    setState((prev) => {
+      const doc = prev.documents.find((d) => d.id === id);
+      const action = status === "approved" ? "Approved document" : status === "rejected" ? "Rejected document" : "Updated document status";
+      return {
+        ...prev,
+        documents: prev.documents.map((d) => (d.id === id ? { ...d, status } : d)),
+        auditLogs: doc ? withAuditLog(prev, currentUserName, action, doc.name) : prev.auditLogs,
+      };
+    });
+  }, [currentUserName]);
 
   const toggleRolePermission = useCallback((role: UserRole, key: string) => {
     setState((prev) => ({
@@ -266,16 +341,25 @@ export function AppStoreProvider({
           ? { ...entry, permissions: { ...entry.permissions, [key]: !entry.permissions[key] } }
           : entry,
       ),
+      auditLogs: withAuditLog(prev, currentUserName, "Updated role permissions", role),
     }));
-  }, []);
+  }, [currentUserName]);
 
   const setSecurityPolicy = useCallback((id: keyof SecurityPolicies, checked: boolean) => {
-    setState((prev) => ({ ...prev, securityPolicies: { ...prev.securityPolicies, [id]: checked } }));
-  }, []);
+    setState((prev) => ({
+      ...prev,
+      securityPolicies: { ...prev.securityPolicies, [id]: checked },
+      auditLogs: withAuditLog(prev, currentUserName, checked ? "Enabled security policy" : "Disabled security policy", id),
+    }));
+  }, [currentUserName]);
 
   const setOrgSettings = useCallback((settings: OrgSettings) => {
-    setState((prev) => ({ ...prev, orgSettings: settings }));
-  }, []);
+    setState((prev) => ({
+      ...prev,
+      orgSettings: settings,
+      auditLogs: withAuditLog(prev, currentUserName, "Updated organization settings", settings.orgName),
+    }));
+  }, [currentUserName]);
 
   const value = useMemo<AppStoreValue>(
     () => ({

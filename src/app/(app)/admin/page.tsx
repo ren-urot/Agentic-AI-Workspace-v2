@@ -1,4 +1,4 @@
-import { getAuditLogs, getAgentCosts, getPermissions, getUsageSeries } from "@/lib/mock-data/admin";
+import { getAgentCosts, getPermissions, getUsageSeries } from "@/lib/mock-data/admin";
 import { isNewOrg } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { DragScrollX } from "@/components/shared/drag-scroll-x";
@@ -11,8 +11,7 @@ import { SecurityPolicies } from "./security-policies";
 import { OrganizationSettings } from "./organization-settings";
 
 export default async function AdminPage() {
-  const [logs, permissions, usage, costs, newOrg] = await Promise.all([
-    getAuditLogs(),
+  const [permissions, usage, costs, newOrg] = await Promise.all([
     getPermissions(),
     getUsageSeries(),
     getAgentCosts(),
@@ -44,7 +43,7 @@ export default async function AdminPage() {
         </TabsContent>
 
         <TabsContent value="audit">
-          <AuditLogTable logs={newOrg ? [] : logs} />
+          <AuditLogTable />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">

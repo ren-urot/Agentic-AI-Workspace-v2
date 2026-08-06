@@ -7,11 +7,11 @@ import { getAgents } from "@/lib/mock-data/agents";
 import { getWorkflows } from "@/lib/mock-data/workflows";
 import { getIntegrations, getWebhooks } from "@/lib/mock-data/integrations";
 import { getDocuments } from "@/lib/mock-data/knowledge";
-import { getUsers, getRolePermissions } from "@/lib/mock-data/admin";
+import { getUsers, getRolePermissions, getAuditLogs } from "@/lib/mock-data/admin";
 import { getCurrentUser, isNewOrg } from "@/lib/auth";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const [notifications, agents, workflows, integrations, webhooks, documents, users, rolePermissions, newOrg, currentUser] =
+  const [notifications, agents, workflows, integrations, webhooks, documents, users, rolePermissions, auditLogs, newOrg, currentUser] =
     await Promise.all([
       getAlerts(),
       getAgents(),
@@ -21,9 +21,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       getDocuments(),
       getUsers(),
       getRolePermissions(),
+      getAuditLogs(),
       isNewOrg(),
       getCurrentUser(),
     ]);
+
+  const currentUserName = currentUser?.name ?? "You";
 
   const seed: AppStoreSeed = {
     workflows: newOrg ? [] : workflows,
@@ -31,16 +34,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     integrations: newOrg ? integrations.map((i) => ({ ...i, status: "disconnected" as const })) : integrations,
     webhooks: newOrg ? [] : webhooks,
     users: newOrg
-      ? [{ id: "self", name: currentUser?.name ?? "You", email: currentUser?.email ?? "", role: "Admin", status: "active" }]
+      ? [{ id: "self", name: currentUserName, email: currentUser?.email ?? "", role: "Admin", status: "active" }]
       : users,
     documents: newOrg ? [] : documents,
     rolePermissions,
+    auditLogs: newOrg ? [] : auditLogs,
   };
 
   const sessionKey = currentUser?.email ?? "demo";
 
   return (
-    <AppStoreProvider seed={seed} agents={agents} sessionKey={sessionKey}>
+    <AppStoreProvider seed={seed} agents={agents} sessionKey={sessionKey} currentUserName={currentUserName}>
       <SidebarCollapseProvider>
         <div className="flex min-h-screen flex-col">
           <Topbar notifications={notifications} />

@@ -7,11 +7,12 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { TablePagination } from "@/components/shared/table-pagination";
-import type { AuditLogEntry } from "@/lib/mock-data/types";
+import { useAppStore } from "@/lib/store/app-store";
 
 const PAGE_SIZE = 5;
 
-export function AuditLogTable({ logs }: { logs: AuditLogEntry[] }) {
+export function AuditLogTable() {
+  const { auditLogs: logs } = useAppStore();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
 
