@@ -1,4 +1,5 @@
 import { getIntegrations, getWebhooks } from "@/lib/mock-data/integrations";
+import { isNewOrg } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { IntegrationCard } from "./integration-card";
 import { WebhookList } from "./webhook-list";
@@ -7,7 +8,9 @@ import type { IntegrationCategory } from "@/lib/mock-data/types";
 const CATEGORY_ORDER: IntegrationCategory[] = ["CRM", "ERP", "Communication", "Identity", "Custom API"];
 
 export default async function IntegrationsPage() {
-  const [integrations, webhooks] = await Promise.all([getIntegrations(), getWebhooks()]);
+  const [rawIntegrations, rawWebhooks, newOrg] = await Promise.all([getIntegrations(), getWebhooks(), isNewOrg()]);
+  const integrations = newOrg ? rawIntegrations.map((i) => ({ ...i, status: "disconnected" as const })) : rawIntegrations;
+  const webhooks = newOrg ? [] : rawWebhooks;
 
   return (
     <div className="space-y-8">

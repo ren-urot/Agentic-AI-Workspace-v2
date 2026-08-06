@@ -1,4 +1,5 @@
 import { getAuditLogs, getAgentCosts, getPermissions, getRolePermissions, getUsageSeries, getUsers } from "@/lib/mock-data/admin";
+import { getCurrentUser, isNewOrg } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { DragScrollX } from "@/components/shared/drag-scroll-x";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,16 +9,23 @@ import { RolesPermissions } from "./roles-permissions";
 import { AiUsageMonitoring } from "./ai-usage";
 import { SecurityPolicies } from "./security-policies";
 import { OrganizationSettings } from "./organization-settings";
+import type { OrgUser } from "@/lib/mock-data/types";
 
 export default async function AdminPage() {
-  const [users, logs, permissions, rolePermissions, usage, costs] = await Promise.all([
+  const [rawUsers, logs, permissions, rolePermissions, usage, costs, newOrg, currentUser] = await Promise.all([
     getUsers(),
     getAuditLogs(),
     getPermissions(),
     getRolePermissions(),
     getUsageSeries(),
     getAgentCosts(),
+    isNewOrg(),
+    getCurrentUser(),
   ]);
+
+  const users: OrgUser[] = newOrg
+    ? [{ id: "self", name: currentUser?.name ?? "You", email: currentUser?.email ?? "", role: "Admin", status: "active" }]
+    : rawUsers;
 
   return (
     <div>
@@ -44,7 +52,7 @@ export default async function AdminPage() {
         </TabsContent>
 
         <TabsContent value="audit">
-          <AuditLogTable logs={logs} />
+          <AuditLogTable logs={newOrg ? [] : logs} />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">
@@ -52,7 +60,7 @@ export default async function AdminPage() {
         </TabsContent>
 
         <TabsContent value="usage">
-          <AiUsageMonitoring usage={usage} costs={costs} />
+          <AiUsageMonitoring usage={newOrg ? [] : usage} costs={newOrg ? [] : costs} />
         </TabsContent>
 
         <TabsContent value="settings">

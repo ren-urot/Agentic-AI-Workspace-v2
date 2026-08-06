@@ -67,7 +67,15 @@ export function DocumentsTable({ documents }: { documents: KnowledgeDocument[] }
         </div>
 
         {filtered.length === 0 ? (
-          <EmptyState icon={FileQuestion} title="No documents found" description="Try a different search term." />
+          documents.length === 0 ? (
+            <EmptyState
+              icon={FileQuestion}
+              title="No documents yet"
+              description="Upload your first document to start building your knowledge base."
+            />
+          ) : (
+            <EmptyState icon={FileQuestion} title="No documents found" description="Try a different search term." />
+          )
         ) : (
           <Table>
             <TableHeader>

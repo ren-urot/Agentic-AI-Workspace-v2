@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SESSION_COOKIE } from "@/lib/auth";
+import { NEW_ORG_COOKIE, NEW_ORG_NAME_COOKIE, SESSION_COOKIE } from "@/lib/auth";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -27,6 +27,16 @@ export async function signup(formData: FormData) {
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, email, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+  });
+  cookieStore.set(NEW_ORG_COOKIE, "1", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+  });
+  cookieStore.set(NEW_ORG_NAME_COOKIE, name, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",

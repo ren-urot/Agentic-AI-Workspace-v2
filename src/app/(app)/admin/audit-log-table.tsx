@@ -45,7 +45,11 @@ export function AuditLogTable({ logs }: { logs: AuditLogEntry[] }) {
           />
         </div>
         {filtered.length === 0 ? (
-          <EmptyState icon={FileQuestion} title="No matching audit log entries" description="Try a different search term." />
+          logs.length === 0 ? (
+            <EmptyState icon={FileQuestion} title="No activity yet" description="Audit log entries will appear here as your team uses the workspace." />
+          ) : (
+            <EmptyState icon={FileQuestion} title="No matching audit log entries" description="Try a different search term." />
+          )
         ) : (
           <Table>
             <TableHeader>

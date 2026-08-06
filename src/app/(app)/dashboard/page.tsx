@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertTriangle, Bot, CheckCircle2, PiggyBank, Sparkles, Zap } from "lucide-react";
 import { getAgents } from "@/lib/mock-data/agents";
 import { getActivityFeed, getAlerts, getKpis, getRevenueSeries, getWorkflowHealthSeries } from "@/lib/mock-data/dashboard";
+import { isNewOrg } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -37,8 +38,9 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{ welcome?: string }>;
 }) {
-  const [{ welcome }, kpis, activity, alerts, revenue, workflowHealth, agents] = await Promise.all([
+  const [{ welcome }, isNewUser, kpis, activity, alerts, revenue, workflowHealth, agents] = await Promise.all([
     searchParams,
+    isNewOrg(),
     getKpis(),
     getActivityFeed(),
     getAlerts(),
@@ -47,12 +49,11 @@ export default async function DashboardPage({
     getAgents(),
   ]);
 
-  const isNewUser = welcome === "1";
   const displayedKpis = isNewUser ? EMPTY_KPIS : kpis;
 
   return (
     <div className="space-y-6">
-      <WelcomeToast show={isNewUser} />
+      <WelcomeToast show={welcome === "1"} />
       <PageHeader title="Executive Dashboard" description="Real-time overview of your organization's AI operations." />
 
       {isNewUser && (
