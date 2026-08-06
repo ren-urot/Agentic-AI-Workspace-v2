@@ -187,7 +187,7 @@ export function CreateAutomationWizard({
       tabIndex={-1}
       className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-background outline-none"
     >
-      <div className="flex items-center justify-between border-b bg-card px-6 py-4">
+      <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b bg-card px-6 py-4">
         <Breadcrumbs items={[{ label: "Workflows" }, { label: "Create Automation" }]} />
         <Button variant="ghost" size="icon" aria-label="Close wizard" onClick={onClose}>
           <X className="size-5" />
