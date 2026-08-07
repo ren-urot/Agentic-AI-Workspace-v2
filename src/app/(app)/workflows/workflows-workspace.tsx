@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
 import { Plus, Workflow } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,26 +14,45 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CreateAutomationWizard } from "./create-automation-wizard";
 import { toast } from "@/lib/toast";
-import { useAppStore } from "@/lib/store/app-store";
-import type { WorkflowStatus, WorkflowSummary } from "@/lib/mock-data/types";
+import { createWorkflow, updateWorkflowStatus } from "./actions";
+import { useState } from "react";
+import type { Agent, WorkflowStatus, WorkflowSummary } from "@/lib/mock-data/types";
 
 const STATUS_OPTIONS: WorkflowStatus[] = ["active", "paused", "draft"];
 
-export function WorkflowsWorkspace() {
-  const { workflows, agents, addWorkflow, setWorkflowStatus } = useAppStore();
+export function WorkflowsWorkspace({
+  initialWorkflows,
+  agents,
+}: {
+  initialWorkflows: WorkflowSummary[];
+  agents: Agent[];
+}) {
+  const [, startTransition] = useTransition();
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const workflows = initialWorkflows;
 
   function handleCreate(workflow: WorkflowSummary) {
-    addWorkflow(workflow);
     setIsWizardOpen(false);
+    startTransition(async () => {
+      try {
+        await createWorkflow({ name: workflow.name, status: workflow.status, agentIds: workflow.agentIds });
+      } catch {
+        toast.error("Couldn't create automation", "Please try again.");
+      }
+    });
   }
 
   function handleStatusChange(id: string, status: WorkflowStatus) {
     const workflow = workflows.find((wf) => wf.id === id);
-    setWorkflowStatus(id, status);
-    if (workflow) {
-      toast.success("Status updated", `"${workflow.name}" is now ${status}.`);
-    }
+    if (!workflow) return;
+    startTransition(async () => {
+      try {
+        await updateWorkflowStatus(id, status, workflow.name);
+        toast.success("Status updated", `"${workflow.name}" is now ${status}.`);
+      } catch {
+        toast.error("Couldn't update status", "Please try again.");
+      }
+    });
   }
 
   return (
