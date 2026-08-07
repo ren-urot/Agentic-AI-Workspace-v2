@@ -127,7 +127,10 @@ create policy "select own org profiles" on profiles
     id = auth.uid() or org_id in (select org_id from profiles where id = auth.uid())
   );
 create policy "update own org profiles" on profiles
-  for update using (org_id in (select org_id from profiles where id = auth.uid()));
+  for update using (
+    org_id in (select org_id from profiles where id = auth.uid())
+    and id != auth.uid()
+  );
 
 create policy "org select agent_deployments" on agent_deployments
   for select using (org_id in (select org_id from profiles where id = auth.uid()));
