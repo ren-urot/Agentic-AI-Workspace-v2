@@ -1,18 +1,13 @@
-"use client";
-
 import Link from "next/link";
 import { Bot } from "lucide-react";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { AgentIcon } from "@/components/shared/agent-icon";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { resolveAgent, useAppStore } from "@/lib/store/app-store";
+import type { Agent } from "@/lib/mock-data/types";
 
-export function AgentsWorkspace() {
-  const { agents, deployedAgentIds, agentOverrides } = useAppStore();
-  const displayedAgents = agents.filter((a) => deployedAgentIds.includes(a.id)).map((a) => resolveAgent(a, agentOverrides));
-
-  if (displayedAgents.length === 0) {
+export function AgentsWorkspace({ agents }: { agents: Agent[] }) {
+  if (agents.length === 0) {
     return (
       <EmptyState
         icon={Bot}
@@ -24,7 +19,7 @@ export function AgentsWorkspace() {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {displayedAgents.map((agent) => (
+      {agents.map((agent) => (
         <Link key={agent.id} href={`/agents/${agent.id}`}>
           <Card className="h-full transition-shadow hover:ring-primary/50">
             <CardHeader className="flex flex-row items-start justify-between gap-2">

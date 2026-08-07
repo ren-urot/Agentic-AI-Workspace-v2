@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,13 +11,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DragScrollX } from "@/components/shared/drag-scroll-x";
 import { toast } from "@/lib/toast";
-import { resolveAgent, useAppStore } from "@/lib/store/app-store";
+import { updateAgentPrompt, updateAgentTools, updateAgentMemory } from "./actions";
 import type { Agent } from "@/lib/mock-data/types";
 
-export function AgentDetailTabs({ agent: baseAgent }: { agent: Agent }) {
-  const { agentOverrides, setAgentOverride } = useAppStore();
-  const agent = resolveAgent(baseAgent, agentOverrides);
-
+export function AgentDetailTabs({ agent }: { agent: Agent }) {
+  const [, startTransition] = useTransition();
   const [prompt, setPrompt] = useState(agent.systemPrompt);
   const [saved, setSaved] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
@@ -54,9 +52,15 @@ export function AgentDetailTabs({ agent: baseAgent }: { agent: Agent }) {
               toast.error("Couldn't save prompt", "System prompt can't be empty.");
               return;
             }
-            setAgentOverride(agent.id, { systemPrompt: prompt });
-            setSaved(true);
-            toast.success("Prompt saved", `${agent.name}'s system prompt has been updated.`);
+            startTransition(async () => {
+              try {
+                await updateAgentPrompt(agent.id, prompt);
+                setSaved(true);
+                toast.success("Prompt saved", `${agent.name}'s system prompt has been updated.`);
+              } catch {
+                toast.error("Couldn't save prompt", "Please try again.");
+              }
+            });
           }}
         >
           {saved ? "Saved" : "Save changes"}
@@ -74,8 +78,14 @@ export function AgentDetailTabs({ agent: baseAgent }: { agent: Agent }) {
                   checked={tool.enabled}
                   onCheckedChange={(checked) => {
                     const nextTools = agent.toolPermissions.map((t, idx) => (idx === i ? { ...t, enabled: checked } : t));
-                    setAgentOverride(agent.id, { toolPermissions: nextTools });
-                    toast.success(checked ? `${tool.tool} access enabled` : `${tool.tool} access disabled`);
+                    startTransition(async () => {
+                      try {
+                        await updateAgentTools(agent.id, nextTools);
+                        toast.success(checked ? `${tool.tool} access enabled` : `${tool.tool} access disabled`);
+                      } catch {
+                        toast.error("Couldn't update tool access", "Please try again.");
+                      }
+                    });
                   }}
                 />
               </div>
@@ -177,8 +187,14 @@ export function AgentDetailTabs({ agent: baseAgent }: { agent: Agent }) {
         title="Clear session?"
         description="This will clear the agent's short-term memory for this session."
         onConfirm={() => {
-          setAgentOverride(agent.id, { shortTermMemory: [] });
-          toast.success("Session cleared", "Short-term memory has been cleared.");
+          startTransition(async () => {
+            try {
+              await updateAgentMemory(agent.id, "short_term_memory", []);
+              toast.success("Session cleared", "Short-term memory has been cleared.");
+            } catch {
+              toast.error("Couldn't clear session", "Please try again.");
+            }
+          });
         }}
       />
       <ConfirmDialog
@@ -187,8 +203,14 @@ export function AgentDetailTabs({ agent: baseAgent }: { agent: Agent }) {
         title="Reset memory?"
         description="This will reset the agent's long-term memory."
         onConfirm={() => {
-          setAgentOverride(agent.id, { longTermMemory: [] });
-          toast.success("Memory reset", "Long-term memory has been reset.");
+          startTransition(async () => {
+            try {
+              await updateAgentMemory(agent.id, "long_term_memory", []);
+              toast.success("Memory reset", "Long-term memory has been reset.");
+            } catch {
+              toast.error("Couldn't reset memory", "Please try again.");
+            }
+          });
         }}
       />
     </Tabs>
