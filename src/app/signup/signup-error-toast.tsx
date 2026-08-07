@@ -8,6 +8,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   email: "Enter a valid work email.",
   password: "Password must be at least 8 characters.",
   mismatch: "Passwords don't match.",
+  exists: "An account with that email already exists. Try signing in instead.",
+  unknown: "Something went wrong. Please try again.",
 };
 
 export function SignupErrorToast({ error }: { error?: string }) {
