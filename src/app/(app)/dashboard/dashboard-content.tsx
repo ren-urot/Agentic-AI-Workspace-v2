@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RevenueChart, WorkflowHealthChart } from "./charts";
 import { WelcomeToast } from "./welcome-toast";
-import { resolveAgent, useAppStore } from "@/lib/store/app-store";
-import type { ActivityItem, AlertItem, ChartPoint, KpiMetric } from "@/lib/mock-data/types";
+import type { Agent, ActivityItem, AlertItem, ChartPoint, KpiMetric } from "@/lib/mock-data/types";
 import type { LucideIcon } from "lucide-react";
 
 const KPI_PRESENTATION: Record<string, { icon: LucideIcon; variant: IconChipVariant }> = {
@@ -40,6 +39,8 @@ export function DashboardContent({
   alerts,
   revenue,
   workflowHealth,
+  workflowCount,
+  deployedAgents,
 }: {
   welcome: boolean;
   kpis: KpiMetric[];
@@ -47,14 +48,13 @@ export function DashboardContent({
   alerts: AlertItem[];
   revenue: ChartPoint[];
   workflowHealth: ChartPoint[];
+  workflowCount: number;
+  deployedAgents: Agent[];
 }) {
-  const { agents, deployedAgentIds, agentOverrides, workflows } = useAppStore();
-
-  const hasContent = workflows.length > 0 || deployedAgentIds.length > 0;
-  const deployedAgents = agents.filter((a) => deployedAgentIds.includes(a.id)).map((a) => resolveAgent(a, agentOverrides));
+  const hasContent = workflowCount > 0 || deployedAgents.length > 0;
 
   const displayedKpis = hasContent
-    ? kpis.map((kpi) => (kpi.id === "active-agents" ? { ...kpi, value: String(deployedAgentIds.length) } : kpi))
+    ? kpis.map((kpi) => (kpi.id === "active-agents" ? { ...kpi, value: String(deployedAgents.length) } : kpi))
     : EMPTY_KPIS;
 
   return (
