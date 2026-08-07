@@ -32,8 +32,8 @@ export function IntegrationCard({
   onDisconnect,
 }: {
   integration: Integration;
-  onConnect: (id: string) => void;
-  onDisconnect: (id: string) => void;
+  onConnect: (id: string) => Promise<void>;
+  onDisconnect: (id: string) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
@@ -48,7 +48,7 @@ export function IntegrationCard({
     setEndpointError(null);
   }
 
-  function handleSave() {
+  async function handleSave() {
     const trimmedKey = apiKey.trim();
     const trimmedEndpoint = endpoint.trim();
 
@@ -66,15 +66,23 @@ export function IntegrationCard({
       return;
     }
 
-    onConnect(integration.id);
-    toast.success(`${integration.name} connected`, trimmedEndpoint);
-    setOpen(false);
-    reset();
+    try {
+      await onConnect(integration.id);
+      toast.success(`${integration.name} connected`, trimmedEndpoint);
+      setOpen(false);
+      reset();
+    } catch {
+      toast.error(`Couldn't connect ${integration.name}`, "Please try again.");
+    }
   }
 
-  function handleDisconnect() {
-    onDisconnect(integration.id);
-    toast.success(`${integration.name} disconnected`);
+  async function handleDisconnect() {
+    try {
+      await onDisconnect(integration.id);
+      toast.success(`${integration.name} disconnected`);
+    } catch {
+      toast.error(`Couldn't disconnect ${integration.name}`, "Please try again.");
+    }
   }
 
   return (
