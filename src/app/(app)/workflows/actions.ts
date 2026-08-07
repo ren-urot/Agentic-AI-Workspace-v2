@@ -23,22 +23,17 @@ export async function createWorkflow(params: { name: string; status: WorkflowSta
   if (error || !workflow) throw new Error(error?.message ?? "Failed to create workflow");
 
   if (params.agentIds.length > 0) {
-    await supabase
+    const { error: linkError } = await supabase
       .from("workflow_agents")
       .insert(params.agentIds.map((agentKey) => ({ workflow_id: workflow.id, agent_key: agentKey })));
-  }
+    if (linkError) throw new Error(linkError.message);
 
-  const { data: existingDeployments } = await supabase
-    .from("agent_deployments")
-    .select("agent_key")
-    .eq("org_id", profile.orgId)
-    .in("agent_key", params.agentIds);
-  const alreadyDeployed = new Set((existingDeployments ?? []).map((d) => d.agent_key));
-  const newlyDeployed = params.agentIds.filter((key) => !alreadyDeployed.has(key));
-
-  if (newlyDeployed.length > 0) {
-    await supabase.from("agent_deployments").insert(
-      newlyDeployed.map((agentKey) => ({
+    // Atomic upsert: only agents not already deployed get fresh (zeroed) stats.
+    // ignoreDuplicates leaves an existing (org_id, agent_key) row untouched
+    // rather than overwriting it, and makes this race-safe against a
+    // concurrent createWorkflow call deploying the same agent.
+    const { error: deployError } = await supabase.from("agent_deployments").upsert(
+      params.agentIds.map((agentKey) => ({
         org_id: profile.orgId,
         agent_key: agentKey,
         status: "idle",
@@ -50,7 +45,9 @@ export async function createWorkflow(params: { name: string; status: WorkflowSta
         long_term_memory: [],
         performance: zeroPerformance(),
       })),
+      { onConflict: "org_id,agent_key", ignoreDuplicates: true },
     );
+    if (deployError) throw new Error(deployError.message);
   }
 
   await logAudit(supabase, { orgId: profile.orgId, actorName: profile.name, action: "Created workflow", resource: params.name });
