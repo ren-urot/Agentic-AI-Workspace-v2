@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/lib/toast";
-import { useAppStore } from "@/lib/store/app-store";
+import { addWebhook, removeWebhook } from "./actions";
+import type { Webhook } from "@/lib/mock-data/types";
 
 const EVENT_PATTERN = /^[a-z]+(\.[a-z]+)+$/;
 
@@ -19,8 +20,8 @@ function isValidWebhookUrl(value: string) {
   }
 }
 
-export function WebhookList() {
-  const { webhooks, addWebhook, removeWebhook } = useAppStore();
+export function WebhookList({ initialWebhooks }: { initialWebhooks: Webhook[] }) {
+  const [, startTransition] = useTransition();
   const [url, setUrl] = useState("");
   const [event, setEvent] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
@@ -45,17 +46,29 @@ export function WebhookList() {
     setEventError(nextEventError);
     if (nextUrlError || nextEventError) return;
 
-    addWebhook({ id: crypto.randomUUID(), url: trimmedUrl, event: trimmedEvent, createdAt: new Date().toISOString() });
-    setUrl("");
-    setEvent("");
-    setUrlError(null);
-    setEventError(null);
-    toast.success("Webhook added", trimmedUrl);
+    startTransition(async () => {
+      try {
+        await addWebhook(trimmedUrl, trimmedEvent);
+        setUrl("");
+        setEvent("");
+        setUrlError(null);
+        setEventError(null);
+        toast.success("Webhook added", trimmedUrl);
+      } catch {
+        toast.error("Couldn't add webhook", "Please try again.");
+      }
+    });
   }
 
-  function handleRemove(id: string) {
-    removeWebhook(id);
-    toast.success("Webhook removed");
+  function handleRemove(id: string, webhookUrl: string) {
+    startTransition(async () => {
+      try {
+        await removeWebhook(id, webhookUrl);
+        toast.success("Webhook removed");
+      } catch {
+        toast.error("Couldn't remove webhook", "Please try again.");
+      }
+    });
   }
 
   return (
@@ -88,11 +101,11 @@ export function WebhookList() {
             Add
           </Button>
         </div>
-        {webhooks.length === 0 ? (
+        {initialWebhooks.length === 0 ? (
           <p className="text-sm text-muted-foreground">No webhooks configured.</p>
         ) : (
           <div className="space-y-2">
-            {webhooks.map((webhook) => (
+            {initialWebhooks.map((webhook) => (
               <div key={webhook.id} className="flex items-center justify-between rounded-md border p-3 text-sm">
                 <div>
                   <p className="font-medium">{webhook.url}</p>
@@ -101,7 +114,7 @@ export function WebhookList() {
                     {new Date(webhook.createdAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
                   </p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleRemove(webhook.id)} aria-label="Delete webhook">
+                <Button variant="ghost" size="icon" onClick={() => handleRemove(webhook.id, webhook.url)} aria-label="Delete webhook">
                   <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                 </Button>
               </div>

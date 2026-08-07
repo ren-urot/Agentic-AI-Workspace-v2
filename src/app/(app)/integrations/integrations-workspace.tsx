@@ -1,14 +1,12 @@
 "use client";
 
 import { IntegrationCard } from "./integration-card";
-import { useAppStore } from "@/lib/store/app-store";
-import type { IntegrationCategory } from "@/lib/mock-data/types";
+import { setIntegrationStatus } from "./actions";
+import type { Integration, IntegrationCategory } from "@/lib/mock-data/types";
 
 const CATEGORY_ORDER: IntegrationCategory[] = ["CRM", "ERP", "Communication", "Identity", "Custom API"];
 
-export function IntegrationsWorkspace() {
-  const { integrations, setIntegrationStatus } = useAppStore();
-
+export function IntegrationsWorkspace({ integrations }: { integrations: Integration[] }) {
   return (
     <>
       {CATEGORY_ORDER.map((category) => {
@@ -22,8 +20,8 @@ export function IntegrationsWorkspace() {
                 <IntegrationCard
                   key={integration.id}
                   integration={integration}
-                  onConnect={(id) => setIntegrationStatus(id, "connected")}
-                  onDisconnect={(id) => setIntegrationStatus(id, "disconnected")}
+                  onConnect={(id) => setIntegrationStatus(id, "connected", integration.name)}
+                  onDisconnect={(id) => setIntegrationStatus(id, "disconnected", integration.name)}
                 />
               ))}
             </div>
