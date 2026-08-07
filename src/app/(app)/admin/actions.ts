@@ -14,6 +14,7 @@ export async function inviteUser(name: string, email: string, role: UserRole) {
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { signup_type: "invited", org_id: profile.orgId, role, name },
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
   });
   if (error) throw new Error(error.message);
 

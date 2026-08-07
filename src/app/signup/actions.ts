@@ -28,7 +28,10 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { signup_type: "self", name } },
+    options: {
+      data: { signup_type: "self", name },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+    },
   });
 
   if (error) {
