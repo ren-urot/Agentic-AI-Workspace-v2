@@ -1,8 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { NEW_ORG_COOKIE, NEW_ORG_NAME_COOKIE, SESSION_COOKIE } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -25,22 +24,19 @@ export async function signup(formData: FormData) {
     redirect("/signup?error=mismatch");
   }
 
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, email, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { signup_type: "self", name } },
   });
-  cookieStore.set(NEW_ORG_COOKIE, "1", {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-  });
-  cookieStore.set(NEW_ORG_NAME_COOKIE, name, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-  });
+
+  if (error) {
+    if (error.message.toLowerCase().includes("already registered")) {
+      redirect("/signup?error=exists");
+    }
+    redirect("/signup?error=unknown");
+  }
 
   redirect("/dashboard?welcome=1");
 }

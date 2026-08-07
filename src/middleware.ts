@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE } from "@/lib/auth";
+import { updateSession } from "@/lib/supabase/middleware";
 
-export function middleware(request: NextRequest) {
-  const hasSession = request.cookies.has(SESSION_COOKIE);
+export async function middleware(request: NextRequest) {
+  const { supabaseResponse, user } = await updateSession(request);
+
   const isPublicAuthPage =
     request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup";
 
-  if (!hasSession && !isPublicAuthPage) {
+  if (!user && !isPublicAuthPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (hasSession && isPublicAuthPage) {
+  if (user && isPublicAuthPage) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {
