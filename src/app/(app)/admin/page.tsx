@@ -1,5 +1,4 @@
-import { getAgentCosts, getPermissions, getUsageSeries } from "@/lib/mock-data/admin";
-import { isNewOrg } from "@/lib/auth";
+import { getUsageSeries, getAgentCosts, getPermissions } from "@/lib/mock-data/admin";
 import { PageHeader } from "@/components/shared/page-header";
 import { DragScrollX } from "@/components/shared/drag-scroll-x";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,13 +8,26 @@ import { RolesPermissions } from "./roles-permissions";
 import { AiUsageMonitoring } from "./ai-usage";
 import { SecurityPolicies } from "./security-policies";
 import { OrganizationSettings } from "./organization-settings";
+import { getCurrentProfile } from "@/lib/db/profile";
+import {
+  getOrgUsers,
+  getOrgRolePermissions,
+  getOrgSecurityPolicies,
+  getOrgSettings,
+  getOrgAuditLogs,
+} from "@/lib/db/admin";
 
 export default async function AdminPage() {
-  const [permissions, usage, costs, newOrg] = await Promise.all([
+  const profile = await getCurrentProfile();
+  const [permissions, usage, costs, users, rolePermissions, securityPolicies, orgSettings, auditLogs] = await Promise.all([
     getPermissions(),
     getUsageSeries(),
     getAgentCosts(),
-    isNewOrg(),
+    profile ? getOrgUsers(profile.orgId) : Promise.resolve([]),
+    profile ? getOrgRolePermissions(profile.orgId) : Promise.resolve([]),
+    profile ? getOrgSecurityPolicies(profile.orgId) : Promise.resolve({}),
+    profile ? getOrgSettings(profile.orgId) : Promise.resolve({ orgName: "", timezone: "", locale: "" }),
+    profile ? getOrgAuditLogs(profile.orgId) : Promise.resolve([]),
   ]);
 
   return (
@@ -35,27 +47,27 @@ export default async function AdminPage() {
         </DragScrollX>
 
         <TabsContent value="users">
-          <UsersWorkspace />
+          <UsersWorkspace users={users} />
         </TabsContent>
 
         <TabsContent value="roles">
-          <RolesPermissions permissions={permissions} />
+          <RolesPermissions permissions={permissions} rolePermissions={rolePermissions} />
         </TabsContent>
 
         <TabsContent value="audit">
-          <AuditLogTable />
+          <AuditLogTable logs={auditLogs} />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">
-          <SecurityPolicies />
+          <SecurityPolicies policies={securityPolicies} />
         </TabsContent>
 
         <TabsContent value="usage">
-          <AiUsageMonitoring usage={newOrg ? [] : usage} costs={newOrg ? [] : costs} />
+          <AiUsageMonitoring usage={usage} costs={costs} />
         </TabsContent>
 
         <TabsContent value="settings">
-          <OrganizationSettings />
+          <OrganizationSettings settings={orgSettings} />
         </TabsContent>
       </Tabs>
     </div>

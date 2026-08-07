@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,12 +15,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/lib/toast";
-import type { OrgUser, UserRole } from "@/lib/mock-data/types";
+import { inviteUser } from "./actions";
+import type { UserRole } from "@/lib/mock-data/types";
 
 const ROLES: UserRole[] = ["Admin", "Manager", "Operator", "Viewer"];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function InviteUserDialog({ onInvite }: { onInvite: (user: OrgUser) => void }) {
+export function InviteUserDialog() {
+  const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -43,20 +45,20 @@ export function InviteUserDialog({ onInvite }: { onInvite: (user: OrgUser) => vo
     setEmailError(nextEmailError);
     if (nextNameError || nextEmailError) return;
 
-    onInvite({
-      id: crypto.randomUUID(),
-      name: trimmedName,
-      email: trimmedEmail,
-      role,
-      status: "invited",
+    startTransition(async () => {
+      try {
+        await inviteUser(trimmedName, trimmedEmail, role);
+        toast.success("Invitation sent", `${trimmedEmail} has been invited as ${role}.`);
+        setName("");
+        setEmail("");
+        setRole("Viewer");
+        setNameError(null);
+        setEmailError(null);
+        setOpen(false);
+      } catch {
+        toast.error("Couldn't send invitation", "Please try again.");
+      }
     });
-    toast.success("Invitation sent", `${trimmedEmail} has been invited as ${role}.`);
-    setName("");
-    setEmail("");
-    setRole("Viewer");
-    setNameError(null);
-    setEmailError(null);
-    setOpen(false);
   }
 
   return (

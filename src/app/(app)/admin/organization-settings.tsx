@@ -1,21 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
-import { useAppStore } from "@/lib/store/app-store";
+import { updateOrgSettings } from "./actions";
 
 const LOCALE_PATTERN = /^[a-z]{2}-[A-Z]{2}$/;
 const TIMEZONE_PATTERN = /^[A-Za-z_]+\/[A-Za-z_]+$/;
 
-export function OrganizationSettings() {
-  const { orgSettings, setOrgSettings } = useAppStore();
-  const [orgName, setOrgName] = useState(orgSettings.orgName);
-  const [timezone, setTimezone] = useState(orgSettings.timezone);
-  const [locale, setLocale] = useState(orgSettings.locale);
+export function OrganizationSettings({ settings }: { settings: { orgName: string; timezone: string; locale: string } }) {
+  const [, startTransition] = useTransition();
+  const [orgName, setOrgName] = useState(settings.orgName);
+  const [timezone, setTimezone] = useState(settings.timezone);
+  const [locale, setLocale] = useState(settings.locale);
   const [errors, setErrors] = useState<{ orgName?: string; timezone?: string; locale?: string }>({});
 
   function handleSave() {
@@ -30,8 +30,14 @@ export function OrganizationSettings() {
       return;
     }
 
-    setOrgSettings({ orgName: orgName.trim(), timezone: timezone.trim(), locale: locale.trim() });
-    toast.success("Settings saved", "Organization settings have been updated.");
+    startTransition(async () => {
+      try {
+        await updateOrgSettings(orgName.trim(), timezone.trim(), locale.trim());
+        toast.success("Settings saved", "Organization settings have been updated.");
+      } catch {
+        toast.error("Couldn't save settings", "Please try again.");
+      }
+    });
   }
 
   return (

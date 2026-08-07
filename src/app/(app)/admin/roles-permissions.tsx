@@ -1,14 +1,21 @@
 "use client";
 
+import { useTransition } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppStore } from "@/lib/store/app-store";
-import type { Permission, UserRole } from "@/lib/mock-data/types";
+import { toggleRolePermission } from "./actions";
+import type { Permission, RolePermissions, UserRole } from "@/lib/mock-data/types";
 
 const ROLE_ORDER: UserRole[] = ["Admin", "Manager", "Operator", "Viewer"];
 
-export function RolesPermissions({ permissions }: { permissions: Permission[] }) {
-  const { rolePermissions, toggleRolePermission } = useAppStore();
+export function RolesPermissions({
+  permissions,
+  rolePermissions,
+}: {
+  permissions: Permission[];
+  rolePermissions: RolePermissions[];
+}) {
+  const [, startTransition] = useTransition();
 
   return (
     <Card>
@@ -39,7 +46,7 @@ export function RolesPermissions({ permissions }: { permissions: Permission[] })
                       <td key={role} className="p-2 text-center">
                         <Checkbox
                           checked={checked}
-                          onCheckedChange={() => toggleRolePermission(role, perm.key)}
+                          onCheckedChange={(next) => startTransition(() => toggleRolePermission(role, perm.key, Boolean(next)))}
                           aria-label={`${perm.label} — ${role}`}
                         />
                       </td>
