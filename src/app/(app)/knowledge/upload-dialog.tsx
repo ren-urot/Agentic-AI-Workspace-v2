@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/lib/toast";
-import { useAppStore } from "@/lib/store/app-store";
+import { uploadDocument } from "./actions";
 import type { DocumentSourceType } from "@/lib/mock-data/types";
 
 const EXTENSION_SOURCE_TYPE: Record<string, DocumentSourceType> = {
@@ -31,7 +31,7 @@ function inferSourceType(fileName: string): DocumentSourceType {
 }
 
 export function UploadDialog() {
-  const { addDocument } = useAppStore();
+  const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -48,18 +48,21 @@ export function UploadDialog() {
       toast.error("Couldn't add to queue", "Choose a file to upload first.");
       return;
     }
-    addDocument({
-      id: crypto.randomUUID(),
-      name: file.name,
-      sourceType: inferSourceType(file.name),
-      version: 1,
-      status: "pending",
-      updatedAt: new Date().toISOString(),
-      keywords: file.name.toLowerCase().split(/[.\s_-]+/).filter((w) => w.length > 3),
+    const name = file.name;
+    startTransition(async () => {
+      try {
+        await uploadDocument({
+          name,
+          sourceType: inferSourceType(name),
+          keywords: name.toLowerCase().split(/[.\s_-]+/).filter((w) => w.length > 3),
+        });
+        toast.success("Added to approval queue", name);
+        setOpen(false);
+        reset();
+      } catch {
+        toast.error("Couldn't add to queue", "Please try again.");
+      }
     });
-    toast.success("Added to approval queue", file.name);
-    setOpen(false);
-    reset();
   }
 
   return (
@@ -81,7 +84,6 @@ export function UploadDialog() {
             type="button"
             onClick={() => inputRef.current?.click()}
             className="flex h-32 w-full items-center justify-center rounded-md border-2 border-dashed text-sm text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
-            aria-invalid={error ? true : undefined}
           >
             {file ? file.name : "Click to choose a file, or drag and drop here"}
           </button>
