@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { DocumentsTable } from "./documents-table";
 import { ApprovalQueue } from "./approval-queue";
 import { setDocumentStatus } from "./actions";
+import { toast } from "@/lib/toast";
 import type { DocumentStatus, KnowledgeDocument } from "@/lib/mock-data/types";
 
 export function KnowledgeWorkspace({ documents }: { documents: KnowledgeDocument[] }) {
@@ -13,7 +14,18 @@ export function KnowledgeWorkspace({ documents }: { documents: KnowledgeDocument
   function handleDecision(id: string, status: DocumentStatus) {
     const doc = documents.find((d) => d.id === id);
     if (!doc) return;
-    startTransition(() => setDocumentStatus(id, status, doc.name));
+    startTransition(async () => {
+      try {
+        await setDocumentStatus(id, status, doc.name);
+        if (status === "approved") {
+          toast.success("Document approved", doc.name);
+        } else if (status === "rejected") {
+          toast.error("Document rejected", doc.name);
+        }
+      } catch {
+        toast.error("Couldn't update document", "Please try again.");
+      }
+    });
   }
 
   return (

@@ -3,7 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { toast } from "@/lib/toast";
 import type { DocumentStatus, KnowledgeDocument } from "@/lib/mock-data/types";
 
 export function ApprovalQueue({
@@ -31,23 +30,10 @@ export function ApprovalQueue({
             </div>
             <div className="flex items-center gap-2">
               <StatusBadge status={doc.status} />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  onDecision(doc.id, "rejected");
-                  toast.error("Document rejected", doc.name);
-                }}
-              >
+              <Button size="sm" variant="outline" onClick={() => onDecision(doc.id, "rejected")}>
                 Reject
               </Button>
-              <Button
-                size="sm"
-                onClick={() => {
-                  onDecision(doc.id, "approved");
-                  toast.success("Document approved", doc.name);
-                }}
-              >
+              <Button size="sm" onClick={() => onDecision(doc.id, "approved")}>
                 Approve
               </Button>
             </div>
