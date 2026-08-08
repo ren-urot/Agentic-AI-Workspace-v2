@@ -1,13 +1,9 @@
 import type { LucideIcon } from "lucide-react";
+import type { WorkflowTriggerType } from "@/lib/mock-data/types";
 
-export type TriggerType = "manual" | "scheduled" | "event" | "webhook";
+export type TriggerType = WorkflowTriggerType;
 
-export const TRIGGER_TYPE_LABELS: Record<TriggerType, string> = {
-  manual: "Manual",
-  scheduled: "Scheduled",
-  event: "Event-based",
-  webhook: "Webhook",
-};
+export { WORKFLOW_TRIGGER_TYPE_LABELS as TRIGGER_TYPE_LABELS } from "@/lib/mock-data/types";
 
 export interface WizardBasics {
   name: string;

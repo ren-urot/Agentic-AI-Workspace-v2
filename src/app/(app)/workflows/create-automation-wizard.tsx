@@ -140,6 +140,7 @@ export function CreateAutomationWizard({
       id: crypto.randomUUID(),
       name: trimmedName,
       status: activateNow ? "active" : "draft",
+      triggerType: basics.triggerType,
       lastRun: "",
       successRate: 0,
       agentIds: selectedAgentIds,

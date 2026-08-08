@@ -99,6 +99,7 @@ async function main() {
   console.log("Creating workflows...");
   const workflowNames = ["New Lead Qualification", "Invoice Approval Routing", "Employee Offboarding", "Support Ticket Escalation"];
   const workflowStatuses = ["active", "active", "draft", "paused"];
+  const workflowTriggerTypes = ["event", "scheduled", "manual", "webhook"];
   const workflowAgents = [["sales"], ["finance"], ["hr"], ["customer-service"]];
   for (let i = 0; i < workflowNames.length; i++) {
     const { data: wf } = await supabase
@@ -107,6 +108,7 @@ async function main() {
         org_id: orgId,
         name: workflowNames[i],
         status: workflowStatuses[i],
+        trigger_type: workflowTriggerTypes[i],
         success_rate: 92 + i,
         last_run: new Date(Date.now() - i * 3600000).toISOString(),
       })

@@ -96,11 +96,20 @@ export interface KnowledgeDocument {
 }
 
 export type WorkflowStatus = "active" | "draft" | "paused";
+export type WorkflowTriggerType = "manual" | "scheduled" | "event" | "webhook";
+
+export const WORKFLOW_TRIGGER_TYPE_LABELS: Record<WorkflowTriggerType, string> = {
+  manual: "Manual",
+  scheduled: "Scheduled",
+  event: "Event-based",
+  webhook: "Webhook",
+};
 
 export interface WorkflowSummary {
   id: string;
   name: string;
   status: WorkflowStatus;
+  triggerType: WorkflowTriggerType;
   lastRun: string;
   successRate: number;
   agentIds: string[];

@@ -16,6 +16,7 @@ import { CreateAutomationWizard } from "./create-automation-wizard";
 import { toast } from "@/lib/toast";
 import { createWorkflow, updateWorkflowStatus } from "./actions";
 import { useState } from "react";
+import { WORKFLOW_TRIGGER_TYPE_LABELS } from "@/lib/mock-data/types";
 import type { Agent, WorkflowStatus, WorkflowSummary } from "@/lib/mock-data/types";
 
 const STATUS_OPTIONS: WorkflowStatus[] = ["active", "paused", "draft"];
@@ -35,7 +36,12 @@ export function WorkflowsWorkspace({
     setIsWizardOpen(false);
     startTransition(async () => {
       try {
-        await createWorkflow({ name: workflow.name, status: workflow.status, agentIds: workflow.agentIds });
+        await createWorkflow({
+          name: workflow.name,
+          status: workflow.status,
+          triggerType: workflow.triggerType,
+          agentIds: workflow.agentIds,
+        });
       } catch {
         toast.error("Couldn't create automation", "Please try again.");
       }
@@ -108,8 +114,16 @@ export function WorkflowsWorkspace({
                   </div>
                 </CardHeader>
                 <CardContent className="text-xs text-muted-foreground">
-                  Success rate: {wf.successRate}% · Last run{" "}
-                  {wf.lastRun ? new Date(wf.lastRun).toLocaleString("en-US", { timeZone: "UTC" }) : "Never run"}
+                  <p>
+                    <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-foreground">
+                      {WORKFLOW_TRIGGER_TYPE_LABELS[wf.triggerType]}
+                    </span>{" "}
+                    trigger
+                  </p>
+                  <p className="mt-1">
+                    Success rate: {wf.successRate}% · Last run{" "}
+                    {wf.lastRun ? new Date(wf.lastRun).toLocaleString("en-US", { timeZone: "UTC" }) : "Never run"}
+                  </p>
                   {assignedAgents.length > 0 && (
                     <p className="mt-1 truncate">Agents: {assignedAgents.map((a) => a.name).join(", ")}</p>
                   )}

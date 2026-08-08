@@ -4,20 +4,32 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/db/profile";
 import { logAudit } from "@/lib/db/audit";
-import type { WorkflowStatus } from "@/lib/mock-data/types";
+import type { WorkflowStatus, WorkflowTriggerType } from "@/lib/mock-data/types";
 
 function zeroPerformance() {
   return Array.from({ length: 7 }).map((_, i) => ({ label: `Day ${i + 1}`, value: 0 }));
 }
 
-export async function createWorkflow(params: { name: string; status: WorkflowStatus; agentIds: string[] }) {
+export async function createWorkflow(params: {
+  name: string;
+  status: WorkflowStatus;
+  triggerType: WorkflowTriggerType;
+  agentIds: string[];
+}) {
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Not authenticated");
   const supabase = await createClient();
 
   const { data: workflow, error } = await supabase
     .from("workflows")
-    .insert({ org_id: profile.orgId, name: params.name, status: params.status, success_rate: 0, last_run: null })
+    .insert({
+      org_id: profile.orgId,
+      name: params.name,
+      status: params.status,
+      trigger_type: params.triggerType,
+      success_rate: 0,
+      last_run: null,
+    })
     .select("id")
     .single();
   if (error || !workflow) throw new Error(error?.message ?? "Failed to create workflow");
