@@ -2,13 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Demo mode: the signup form is a live product walkthrough, not real account
-// creation. It validates input like a real signup, then drops the visitor
-// into the pre-seeded demo workspace -- no Supabase signup/email API is
-// ever called, so there is no confirmation email and no rate limit.
+// Creates a real, brand-new, empty account -- via admin.createUser() with
+// email_confirm: true, never Supabase's signUp(), so no confirmation email
+// is ever sent and there is no rate limit. The visitor lands in their own
+// fresh org with zero data, not the pre-seeded demo account.
 export async function signup(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
@@ -28,13 +29,25 @@ export async function signup(formData: FormData) {
     redirect("/signup?error=mismatch");
   }
 
-  const supabase = await createClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: "demo@nexxabyte.com",
-    password: process.env.DEMO_ACCOUNT_PASSWORD!,
+  const admin = createAdminClient();
+  const { error: createError } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { signup_type: "self", name },
   });
-  if (signInError) {
+
+  if (createError) {
+    if (createError.message.toLowerCase().includes("already registered")) {
+      redirect("/signup?error=exists");
+    }
     redirect("/signup?error=unknown");
+  }
+
+  const supabase = await createClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+  if (signInError) {
+    redirect("/login");
   }
 
   redirect("/dashboard?welcome=1");
