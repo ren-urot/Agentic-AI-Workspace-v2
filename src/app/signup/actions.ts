@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -24,21 +25,25 @@ export async function signup(formData: FormData) {
     redirect("/signup?error=mismatch");
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const admin = createAdminClient();
+  const { error: createError } = await admin.auth.admin.createUser({
     email,
     password,
-    options: {
-      data: { signup_type: "self", name },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
-    },
+    email_confirm: true,
+    user_metadata: { signup_type: "self", name },
   });
 
-  if (error) {
-    if (error.message.toLowerCase().includes("already registered")) {
+  if (createError) {
+    if (createError.message.toLowerCase().includes("already registered")) {
       redirect("/signup?error=exists");
     }
     redirect("/signup?error=unknown");
+  }
+
+  const supabase = await createClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+  if (signInError) {
+    redirect("/login");
   }
 
   redirect("/dashboard?welcome=1");
