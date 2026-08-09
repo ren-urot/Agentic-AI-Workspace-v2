@@ -1,8 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { Plus, Workflow } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Play, Plus, Workflow } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,6 +13,7 @@ import {
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CreateAutomationWizard } from "./create-automation-wizard";
+import { RunAutomationModal } from "./run-automation-modal";
 import { toast } from "@/lib/toast";
 import { createWorkflow, updateWorkflowStatus } from "./actions";
 import { useState } from "react";
@@ -30,7 +31,9 @@ export function WorkflowsWorkspace({
 }) {
   const [, startTransition] = useTransition();
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [runningWorkflowId, setRunningWorkflowId] = useState<string | null>(null);
   const workflows = initialWorkflows;
+  const runningWorkflow = workflows.find((wf) => wf.id === runningWorkflowId);
 
   function handleCreate(workflow: WorkflowSummary) {
     setIsWizardOpen(false);
@@ -128,6 +131,17 @@ export function WorkflowsWorkspace({
                     <p className="mt-1 truncate">Agents: {assignedAgents.map((a) => a.name).join(", ")}</p>
                   )}
                 </CardContent>
+                <CardFooter>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setRunningWorkflowId(wf.id)}
+                  >
+                    <Play className="size-3.5" />
+                    Run now
+                  </Button>
+                </CardFooter>
               </Card>
             );
           })}
@@ -136,6 +150,20 @@ export function WorkflowsWorkspace({
 
       {isWizardOpen && (
         <CreateAutomationWizard agents={agents} onCreate={handleCreate} onClose={() => setIsWizardOpen(false)} />
+      )}
+
+      {runningWorkflow && (
+        <RunAutomationModal
+          key={runningWorkflow.id}
+          open={Boolean(runningWorkflowId)}
+          onOpenChange={(open) => {
+            if (!open) setRunningWorkflowId(null);
+          }}
+          workflowId={runningWorkflow.id}
+          workflowName={runningWorkflow.name}
+          agentKeys={runningWorkflow.agentIds}
+          agentNames={agents.filter((a) => runningWorkflow.agentIds.includes(a.id)).map((a) => a.name)}
+        />
       )}
     </div>
   );

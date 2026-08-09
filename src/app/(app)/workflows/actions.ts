@@ -69,6 +69,48 @@ export async function createWorkflow(params: {
   revalidatePath("/dashboard");
 }
 
+export async function runWorkflow(id: string, name: string, agentKeys: string[]) {
+  const profile = await getCurrentProfile();
+  if (!profile) throw new Error("Not authenticated");
+  const supabase = await createClient();
+
+  const nowIso = new Date().toISOString();
+  const successRate = Math.min(100, 88 + Math.floor(Math.random() * 12));
+
+  const { error } = await supabase
+    .from("workflows")
+    .update({ last_run: nowIso, success_rate: successRate })
+    .eq("id", id)
+    .eq("org_id", profile.orgId);
+  if (error) throw new Error(error.message);
+
+  for (const agentKey of agentKeys) {
+    const { data: deployment } = await supabase
+      .from("agent_deployments")
+      .select("tasks_completed")
+      .eq("org_id", profile.orgId)
+      .eq("agent_key", agentKey)
+      .single();
+    if (!deployment) continue;
+
+    await supabase
+      .from("agent_deployments")
+      .update({
+        status: "active",
+        tasks_completed: deployment.tasks_completed + 1,
+        last_active: nowIso,
+      })
+      .eq("org_id", profile.orgId)
+      .eq("agent_key", agentKey);
+  }
+
+  await logAudit(supabase, { orgId: profile.orgId, actorName: profile.name, action: "Ran automation", resource: name });
+
+  revalidatePath("/workflows");
+  revalidatePath("/agents");
+  revalidatePath("/dashboard");
+}
+
 export async function updateWorkflowStatus(id: string, status: WorkflowStatus, name: string) {
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Not authenticated");
